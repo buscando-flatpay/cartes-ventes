@@ -3,8 +3,11 @@
 Usage : python3 maj.py ventes.json lignes.txt AAAA-MM-JJ
 lignes.txt : une vente par ligne, champs séparés par |
   équipe portail | field sales | commerce | SIREN | date RDV | adresse siège | lat | lon | état (ex. AA, CF)
+  [| code NAF | date de création AAAA-MM-JJ | nature juridique]   (facultatifs : catégorie et profil client)
 """
-import json,re,sys
+import json,re,sys,os
+sys.path.insert(0,os.path.dirname(os.path.abspath(__file__)))
+from categ import categorie
 from collections import Counter
 small={'de','du','des','la','le','les','et','au','aux','en','sur','sous','a'}
 def tc(w):
@@ -41,6 +44,7 @@ def main(vj,lignes,jour):
         p=l.split('|')
         if len(p)<9: print('ligne ignorée :',l);continue
         team,s,n,siren,date,a,lat,lon,st=[x.strip() for x in p[:9]]
+        naf,cr,nj=([x.strip() for x in p[9:12]]+['','',''])[:3]
         s,tm=nom(s);siren=re.sub(r'\s','',siren)
         if not re.fullmatch(r'\d{9}',siren) or (s,siren) in have: continue
         if s not in connus:
@@ -49,6 +53,11 @@ def main(vj,lignes,jour):
             if s not in col:
                 used=set(col.values());col[s]=next((c for c in PALETTE if c not in used),'#cbd5e1')
         d=dict(s=s,n=n,siren=siren);rem=[]
+        d['c']=categorie(naf,n)
+        md=re.search(r'(\d\d)/(\d\d)/(\d{4})',date)
+        if md: d['d']=f"{md.group(3)}-{md.group(2)}-{md.group(1)}"
+        if re.fullmatch(r'\d{4}-\d\d-\d\d',cr): d['cr']=cr
+        if nj: d['ej']=1 if nj.startswith('1') else 0
         if not a or a=='NOTFOUND':
             d['a']='Adresse inconnue';rem.append('SIREN introuvable au registre')
         elif 'NON-DIFFUSIBLE' in a:
