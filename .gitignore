@@ -1,2 +1,3 @@
 ventes.json
 *.plain.*
+__pycache__/
