@@ -958,6 +958,17 @@ body{background:var(--ink);color:var(--text);font-family:var(--body);font-size:1
   .lr{grid-template-columns:26px 30px minmax(0,1fr) repeat(3,40px)}.lc{display:none}.hero h2{font-size:30px}}
 @media (max-width:480px){.rings{grid-template-columns:1fr 1fr 1fr}.ring svg,.ring .rv{width:72px;height:72px}.ring .rv b{font-size:17px}.kpi .v{font-size:32px}}
 </style>
+<style>
+.rail2{border-right:0;border-left:1px solid var(--line);width:290px;padding-left:0;padding-right:env(safe-area-inset-right,0px)}
+.rail .sales{flex:1;max-height:none;min-height:0;align-content:start;padding-bottom:14px}
+.vsel{margin:0 18px;position:relative}
+.vsel select{width:100%;appearance:none;-webkit-appearance:none;background:var(--ink);border:1px solid var(--line);border-radius:8px;color:var(--text);padding:9px 32px 9px 10px;font:inherit;font-size:13px;cursor:pointer}
+.vsel::after{content:"▾";position:absolute;right:12px;top:50%;transform:translateY(-50%);color:var(--muted);pointer-events:none}
+.vsel select:focus{outline:none;border-color:var(--muted)}
+.rail2 .search{margin:10px 18px 4px}
+@media (max-width:1100px){.rail{width:260px}.rail2{width:250px}}
+@media (max-width:760px){.hud{top:calc(60px + env(safe-area-inset-top,0px))}.rail,.rail2{width:100%;border-left:0}.rail2{border-top:1px solid var(--line)}.rail .sales{flex:none}}
+</style>
 <div class="gate" id="gate">
   <form id="gateform" autocomplete="off">
     <h2>Ventes Sud-Est</h2>
@@ -978,10 +989,6 @@ body{background:var(--ink);color:var(--text);font-family:var(--body);font-size:1
     <div id="catchip"></div>
     <div class="label">Commerciaux</div>
     <div class="sales" id="sales"></div>
-    <div class="search"><input id="q" type="search" placeholder="Chercher un commerce, une ville, un SIREN…" autocomplete="off"></div>
-    <div class="label" id="listlabel">Ventes</div>
-    <div class="list" id="list"></div>
-    <div class="foot">Adresse du siège au registre SIRENE · points en pointillé : adresse non publique ou hors carte</div>
   </aside>
   <div class="mapwrap">
     <div id="map" role="application" aria-label="Carte des ventes"></div>
@@ -990,6 +997,14 @@ body{background:var(--ink);color:var(--text);font-family:var(--body);font-size:1
     <section class="ana" id="ana" hidden aria-label="Analyse des ventes"><div class="ana-in" id="ana-in"></div></section>
     <div class="tip" id="tip" hidden></div>
   </div>
+  <aside class="rail rail2" aria-label="Liste des ventes">
+    <div class="label" style="padding-top:18px">Commune</div>
+    <div class="vsel"><select id="ville" aria-label="Filtrer par commune"></select></div>
+    <div class="search"><input id="q" type="search" placeholder="Chercher un commerce, un SIREN…" autocomplete="off"></div>
+    <div class="label" id="listlabel">Ventes</div>
+    <div class="list" id="list"></div>
+    <div class="foot">Adresse du siège au registre SIRENE · points en pointillé : adresse non publique ou hors carte</div>
+  </aside>
 </div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
@@ -1056,15 +1071,20 @@ const seen={};
 DATA.forEach(d=>{if(d.lat==null)return;const k=d.lat+','+d.lon;const n=seen[k]=(seen[k]||0)+1;if(n>1){const a=n*2.4,r=.00035*Math.sqrt(n);d.plat=d.lat+r*Math.sin(a);d.plon=d.lon+r*Math.cos(a)}else{d.plat=d.lat;d.plon=d.lon}});
 
 const layer=L.layerGroup().addTo(map);
-let team='all',current='all',query='',cat=null,vue='map';
+let team='all',current='all',query='',cat=null,vue='map',vf='';
 const markers=new Map();
 const teamLabel=t=>t==='all'?'Toutes les équipes':(t==='Autres'?'Autres (anciens sales, managers)':'Équipe '+t);
 
 function popup(d){const c=COLORS[d.s];return `<div class="pp" style="--c:${c}"><div class="k">Vente · ${esc(TEAM_OF[d.s]==='Autres'?'Autres':'Équipe '+TEAM_OF[d.s])}</div><h3>${esc(d.n)}</h3>${d.c?`<div class="cat">${esc(d.c)}</div>`:''}<div class="sir">SIREN ${esc(d.siren)}</div><p class="ad">${esc(d.a)}</p>${d.r?`<div class="wr">${esc(d.r)}</div>`:''}<div class="by"><i></i>${esc(d.s)}</div>${d.lat!=null||d.v?`<a class="gm" href="https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(d.a&&!/non publique|inconnue/.test(d.a)?d.a:(d.lat!=null?d.lat+','+d.lon:d.v))}" target="_blank" rel="noopener">Voir sur Google Maps ↗</a>`:''}</div>`}
 
+const vcom=d=>(d.v||'').replace(/\s*\(\d+\)$/,'').replace(/^Marseille.*/,'Marseille')||'Adresse non publique';
+function drawVilles(){const q=query.toLowerCase();const base=DATA.filter(d=>(team==='all'||TEAM_OF[d.s]===team)&&(current==='all'||d.s===current)&&(!cat||d.c===cat));
+  const m=new Map();base.forEach(d=>{const k=vcom(d);m.set(k,(m.get(k)||0)+1)});const L=[...m.entries()].sort((a,b)=>b[1]-a[1]||a[0].localeCompare(b[0],'fr'));
+  if(vf&&!m.has(vf))vf='';
+  document.getElementById('ville').innerHTML=`<option value="">Toutes les communes (${L.length})</option>`+L.map(([k,v])=>`<option value="${esc(k)}"${k===vf?' selected':''}>${esc(k)} · ${v}</option>`).join('');}
 function visible(){
   const q=query.toLowerCase();
-  return DATA.filter(d=>(team==='all'||TEAM_OF[d.s]===team)&&(current==='all'||d.s===current)&&(!cat||d.c===cat)&&(!q||(d.n+' '+d.a+' '+d.siren+' '+(d.v||'')).toLowerCase().includes(q)));
+  return DATA.filter(d=>(team==='all'||TEAM_OF[d.s]===team)&&(current==='all'||d.s===current)&&(!cat||d.c===cat)&&(!vf||vcom(d)===vf)&&(!q||(d.n+' '+d.a+' '+d.siren+' '+(d.v||'')).toLowerCase().includes(q)));
 }
 const D30=new Date(Date.now()-30*864e5).toISOString().slice(0,10);
 const c30=s=>DATA.filter(d=>d.s===s&&d.d&&d.d>=D30).length;
@@ -1087,6 +1107,7 @@ function drawSales(){
   document.querySelectorAll('#teams button').forEach(b=>{const on=b.dataset.t===team;b.classList.toggle('on',on);b.setAttribute('aria-selected',on)});
 }
 function render(){
+  drawVilles();
   layer.clearLayers();markers.clear();
   const rows=visible();const pts=[];
   const big=current!=='all';
@@ -1115,6 +1136,7 @@ document.getElementById('teams').addEventListener('click',e=>{const b=e.target.c
 document.getElementById('sales').addEventListener('click',e=>{const b=e.target.closest('.sale');if(!b)return;current=b.dataset.s;fit(render());save()});
 document.getElementById('list').addEventListener('click',e=>{const b=e.target.closest('.item');if(!b)return;const d=DATA[+b.dataset.i];const m=markers.get(d);
   if(m){map.flyTo(m.getLatLng(),17,{duration:.5});setTimeout(()=>m.openPopup(),550)}});
+document.getElementById('ville').addEventListener('change',e=>{vf=e.target.value;fit(render())});
 let tm;document.getElementById('q').addEventListener('input',e=>{clearTimeout(tm);tm=setTimeout(()=>{query=e.target.value.trim();fit(render())},150)});
 const fmtD=s=>{const [y,m,d]=s.split('-');return d+'/'+m+'/'+y};
 document.getElementById('sub').textContent=`${DATA.length} ventes · ${Object.keys(TEAMS).length} équipes · mise à jour le ${fmtD(UPDATED)}`;
@@ -1181,7 +1203,7 @@ function renderAna(){
   // --- en-tête
   const av=current!=='all'?`<span class="hav" style="--c:${acc}">${esc(ini(current))}</span>`:`<span class="hav team">${team==='all'?'★':esc(ini(team))}</span>`;
   let h=`<header class="hero" style="--c:${acc}">${av}<div><div class="kk">${current!=='all'?esc(TEAM_OF[current]==='Autres'?'Autres':'Équipe '+TEAM_OF[current]):'Vue d\'ensemble'}</div><h2>${esc(who)}</h2>
-    <p>${nf(n)} vente${n>1?'s':''}${cat?` · ${catI(cat)[0]} ${esc(cat)}`:''}${query?` · recherche « ${esc(query)} »`:''}</p></div></header>`;
+    <p>${nf(n)} vente${n>1?'s':''}${cat?` · ${catI(cat)[0]} ${esc(cat)}`:''}${vf?` · 📍 ${esc(vf)}`:''}${query?` · recherche « ${esc(query)} »`:''}</p></div></header>`;
   h+=`<div class="kpis" style="--c:${acc}">
     <div class="kpi"><div class="ki">🧾</div><div class="v" data-n="${n}">${nf(n)}</div><div class="l">ventes au total</div></div>
     <div class="kpi"><div class="ki">⚡</div><div class="v" data-n="${n30}">${nf(n30)}</div><div class="l">sur les 30 derniers jours ${dated.length?`<span class="dl ${dl>0?'up':dl<0?'dn':''}">${dl>0?'▲ +':dl<0?'▼ ':''}${dl||'='}</span>`:''}</div></div>
