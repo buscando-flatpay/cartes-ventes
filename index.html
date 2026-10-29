@@ -7,7 +7,7 @@
 <style>:root{color-scheme:dark}body{margin:0}[hidden]{display:none!important}</style>
 </head>
 <body>
-<title>Ventes Sud-Est</title>
+<title>Ventes Flatpay</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
@@ -971,7 +971,7 @@ body{background:var(--ink);color:var(--text);font-family:var(--body);font-size:1
 </style>
 <div class="gate" id="gate">
   <form id="gateform" autocomplete="off">
-    <h2>Ventes Sud-Est</h2>
+    <h2>Ventes Flatpay</h2>
     <p>Carte des ventes Flatpay, mise à jour chaque soir. Accès réservé aux équipes commerciales.</p>
     <input id="pw" type="password" placeholder="Mot de passe" aria-label="Mot de passe" autocomplete="current-password">
     <button id="go" type="submit">Ouvrir la carte</button>
@@ -981,7 +981,7 @@ body{background:var(--ink);color:var(--text);font-family:var(--body);font-size:1
 <div class="app">
   <aside class="rail">
     <div class="brand">
-      <h1>Ventes Sud-Est</h1>
+      <h1>Ventes Flatpay</h1>
       <p id="sub">Chargement des ventes…</p>
     </div>
     <div class="teams" id="teams" role="tablist" aria-label="Équipe">
@@ -1128,7 +1128,12 @@ function render(){
   return pts;
 }
 function fit(pts){
-  const inZone=pts.filter(p=>p[0]>42.9&&p[0]<45.5&&p[1]>4.2&&p[1]<7.4);
+  let inZone=pts.filter(p=>p[0]>41.3&&p[0]<51.2&&p[1]>-5.2&&p[1]<9.7);
+  // ignore les points isolés (sièges loin du terrain) pour cadrer sur les vraies zones de vente
+  if(inZone.length>8){const g=new Map(),k=(a,b)=>a+','+b;inZone.forEach(p=>{const c=k(Math.floor(p[0]/.5),Math.floor(p[1]/.5));g.set(c,(g.get(c)||0)+1)});
+    const min=Math.max(3,Math.round(inZone.length*.01));
+    const keep=inZone.filter(p=>{const a=Math.floor(p[0]/.5),b=Math.floor(p[1]/.5);let n=0;for(let i=-1;i<=1;i++)for(let j=-1;j<=1;j++)n+=g.get(k(a+i,b+j))||0;return n>=min});
+    if(keep.length)inZone=keep}
   if(inZone.length)map.flyToBounds(L.latLngBounds(inZone).pad(.08),{duration:.6,maxZoom:14});
 }
 function save(){try{localStorage.setItem('carte',JSON.stringify({team,current}))}catch(_){}}

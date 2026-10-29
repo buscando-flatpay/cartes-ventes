@@ -26,9 +26,9 @@ def fmt(a):
     street=a[:m.start()].strip(); ville=re.sub(r'\s+(\d+\s*(EME|E ARRONDISSEMENT|ER)?|1)$','',m.group(2)).strip()
     return f"{tc(street)}, {m.group(1)} {tc(ville)}", m.group(1)
 
-REN={'HOCHET Kelly':'Kelly Hochet','Raphael Bouteille':'Raphaël Bouteille','Roméo Michel Paul Rulleau':'Roméo Rulleau'}
-EQUIPE={'Var - Marseille':'Quentin','Bouches du Rhône - Marseille':'Jean Barbier','Vaucluse - Marseille':'Roméo'}
-PALETTE=["#fb7185","#34d399","#c084fc","#fbbf24","#2dd4bf","#f472b6","#60a5fa","#a3e635","#f97316","#e879f9","#4ade80","#facc15"]
+REN={'HOCHET Kelly':'Kelly Hochet','Bel MOUYENI':'Bel Mouyeni','Raphael Bouteille':'Raphaël Bouteille','Roméo Michel Paul Rulleau':'Roméo Rulleau'}
+EQUIPE={'Var - Marseille':'Quentin','Bouches du Rhône - Marseille':'Jean Barbier','Vaucluse - Marseille':'Roméo','La Rochelle':'Benjamin','Bordeaux':'Milan'}
+PALETTE=["#fb7185","#34d399","#c084fc","#fbbf24","#2dd4bf","#f472b6","#60a5fa","#a3e635","#f97316","#e879f9","#4ade80","#facc15","#ff5d73","#ffb020","#3ddc97","#38bdf8","#a78bfa","#ff7a2f","#22d3c5","#fde047","#6d8bff","#f9a8d4","#86efac","#fca5a5","#93c5fd","#d8b4fe","#fdba74","#5eead4","#bef264","#f0abfc","#67e8f9","#fcd34d"]
 def nom(s):
     s=s.strip();tm=s.startswith('(TM)')
     s=re.sub(r'^\(TM\)\s*','',s);s=REN.get(s,s)
@@ -67,8 +67,8 @@ def main(vj,lignes,jour):
             if m: d['v']=f"{m.group(2)} ({m.group(1)[:2]})"
             try:
                 la,lo=float(lat),float(lon)
-                if 42.8<la<45.2 and 3.5<lo<7.8: d['lat']=la;d['lon']=lo
-                else: rem.append('Siège hors région · point hors carte')
+                if 41.3<la<51.2 and -5.2<lo<9.7: d['lat']=la;d['lon']=lo
+                else: rem.append('Siège hors France métropolitaine · point hors carte')
             except ValueError: rem.append('Pas de coordonnées au registre')
         if st[:1]=='C': rem.append('Entreprise cessée au registre')
         elif st[1:2]=='F': rem.append('Siège fermé au registre')
