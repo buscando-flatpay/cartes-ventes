@@ -989,6 +989,35 @@ body{background:var(--ink);color:var(--text);font-family:var(--body);font-size:1
 .split .sd{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px}.split .sd span{font-size:11px;color:var(--muted);background:var(--raise);padding:2px 8px;border-radius:999px}.split .sd b{color:var(--text)}
 .lr{grid-template-columns:30px 32px minmax(120px,1.4fr) repeat(4,48px) minmax(0,1.2fr)}
 .ls.lp b{color:#c4b5fd!important}
+.stats button.on b{color:#ff8a9a}
+.posm i.off{opacity:.45;border-color:#ff5d73;border-style:dashed}
+.ctag{display:inline-block;margin-left:4px;padding:0 5px;border-radius:4px;background:color-mix(in srgb,#ff5d73 22%,transparent);color:#ff9aa8;font-size:10px;font-weight:700;vertical-align:1px}
+.pp .cbadge{display:inline-block;margin:4px 0 2px 4px;padding:2px 8px;border-radius:999px;background:color-mix(in srgb,#ff5d73 22%,var(--panel));color:#ffc2ca;font-size:11.5px;font-weight:600}
+.chk{display:grid;grid-template-columns:auto minmax(0,1fr);gap:18px;align-items:center}
+.chg{position:relative;width:120px;height:120px}.chg svg{transform:rotate(-90deg)}
+.chg .cv{position:absolute;inset:0;display:grid;place-items:center;text-align:center;line-height:1}
+.chg .cv b{font:700 30px var(--display);color:#ff8a9a}.chg .cv small{display:block;font-size:10.5px;color:var(--muted);margin-top:3px}
+.chs{display:flex;flex-direction:column;gap:8px;font-size:12.5px;color:var(--muted)}
+.chs div{display:flex;justify-content:space-between;gap:10px}.chs b{color:var(--text);font-variant-numeric:tabular-nums}
+.chs i{display:inline-block;width:9px;height:9px;border-radius:2px;margin-right:6px;vertical-align:0}
+.chp{display:flex;flex-direction:column;gap:9px;margin-top:16px}
+.cpr{display:grid;grid-template-columns:minmax(0,140px) minmax(0,1fr) 128px;gap:10px;align-items:center;font-size:12.5px}
+.cpr .cb{height:9px;border-radius:5px;background:var(--raise);overflow:hidden;display:flex}
+.cpr .cb i{display:block;height:100%;transition:width .9s cubic-bezier(.2,.8,.2,1)}
+.cpr .cb i.r{background:#ff5d73}.cpr .cb i.a{background:#fbbf24}
+.cpr span:last-child{text-align:right;color:var(--muted)}.cpr span:last-child b{color:var(--text)}
+.clb{display:flex;flex-direction:column;gap:4px;margin-top:4px}
+.clr{display:grid;grid-template-columns:32px minmax(110px,1.2fr) minmax(0,2fr) 64px 70px;gap:10px;align-items:center;padding:7px 10px;border-radius:10px;background:none;border:1px solid transparent;color:var(--text);font:inherit;text-align:left;cursor:pointer;width:100%}
+.clr:hover{background:var(--raise);border-color:color-mix(in srgb,var(--c) 40%,transparent)}
+.clr .ln b{font-size:13px}.clr .cb{height:8px;border-radius:4px;background:var(--raise);overflow:hidden;display:flex}
+.clr .cb i{display:block;height:100%;transition:width .9s cubic-bezier(.2,.8,.2,1)}.clr .cb i.r{background:#ff5d73}.clr .cb i.a{background:#fbbf24}
+.clr .cp{font:700 18px var(--display);text-align:right;font-variant-numeric:tabular-nums}
+.clr .cp.hi{color:#ff8a9a}.clr .cp.lo{color:#3ddc97}
+.clr small{font-size:11px;color:var(--muted);text-align:right}
+.cleg{display:flex;gap:14px;font-size:11.5px;color:var(--muted)}
+.chs b{white-space:nowrap}.churn .ch{flex-wrap:wrap;gap:6px 12px}
+@media (max-width:600px){.chk{grid-template-columns:1fr;justify-items:center}.chs{width:100%}.cleg{flex-wrap:wrap;gap:4px 12px}}.cleg i{display:inline-block;width:9px;height:9px;border-radius:2px;margin-right:5px}
+@media (max-width:900px){.clr{grid-template-columns:30px minmax(0,1fr) 54px 60px}.clr .cb{display:none}.cpr{grid-template-columns:minmax(0,104px) minmax(0,1fr) 112px}}
 @media (max-width:900px){.lr{grid-template-columns:26px 30px minmax(0,1fr) repeat(4,36px)}}
 </style>
 <div class="gate" id="gate">
@@ -1022,6 +1051,8 @@ body{background:var(--ink);color:var(--text);font-family:var(--body);font-size:1
   <aside class="rail rail2" aria-label="Liste des ventes">
     <div class="label" style="padding-top:18px">Produit vendu</div>
     <div class="prods" id="prods" role="tablist" aria-label="Produit"></div>
+    <div class="label">Statut du contrat</div>
+    <div class="prods stats" id="stats" role="tablist" aria-label="Statut du contrat"></div>
     <div class="label">Commune</div>
     <div class="vsel"><select id="ville" aria-label="Filtrer par commune"></select></div>
     <div class="search"><input id="q" type="search" placeholder="Chercher un commerce, un SIREN…" autocomplete="off"></div>
@@ -1033,7 +1064,7 @@ body{background:var(--ink);color:var(--text);font-family:var(--body);font-size:1
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
 <script>
-let DATA,TEAMS,COLORS,UPDATED;
+let DATA,TEAMS,COLORS,UPDATED,CHMAJ;
 const PALETTE=["#ff5d73","#ffb020","#3ddc97","#38bdf8","#a78bfa","#f472b6","#ff7a2f","#22d3c5","#a3e635","#e879f9","#fde047","#6d8bff","#fb7185","#34d399","#c084fc","#fbbf24"];
 const b64=s=>Uint8Array.from(atob(s),c=>c.charCodeAt(0));
 let ENC=null;
@@ -1050,7 +1081,7 @@ document.getElementById('gateform').addEventListener('submit',async ev=>{
   btn.disabled=true;btn.textContent='Ouverture…';err.textContent='';
   try{
     const j=await unlock(document.getElementById('pw').value);
-    DATA=j.ventes;TEAMS=j.equipes;COLORS=j.couleurs||{};UPDATED=j.maj;
+    DATA=j.ventes;TEAMS=j.equipes;COLORS=j.couleurs||{};UPDATED=j.maj;CHMAJ=j.chmaj;
     let k=0;Object.values(TEAMS).flat().forEach(s=>{if(!COLORS[s])COLORS[s]=PALETTE.filter(c=>!Object.values(COLORS).includes(c))[0]||PALETTE[k++%PALETTE.length]});
     DATA.forEach(d=>{if(!Object.values(TEAMS).flat().includes(d.s)){(TEAMS['Autres']=TEAMS['Autres']||[]).push(d.s);COLORS[d.s]=COLORS[d.s]||'#cbd5e1'}});
     document.getElementById('gate').hidden=true;init();
@@ -1095,23 +1126,27 @@ const seen={};
 DATA.forEach(d=>{if(d.lat==null)return;const k=d.lat+','+d.lon;const n=seen[k]=(seen[k]||0)+1;if(n>1){const a=n*2.4,r=.00035*Math.sqrt(n);d.plat=d.lat+r*Math.sin(a);d.plon=d.lon+r*Math.cos(a)}else{d.plat=d.lat;d.plon=d.lon}});
 
 const layer=L.layerGroup().addTo(map);
-let team='all',current='all',query='',cat=null,vue='map',vf='',prod='';
+let team='all',current='all',query='',cat=null,vue='map',vf='',prod='',stf='';
+const isOff=d=>d.ch===1||d.ch===2;const stOk=d=>!stf||(stf==='off'?isOff(d):!isOff(d));
 const markers=new Map();
 const teamLabel=t=>t==='all'?'Toutes les équipes':(t==='Autres'?'Autres (anciens sales, managers)':'Équipe '+t);
 
-function popup(d){const c=COLORS[d.s];return `<div class="pp" style="--c:${c}"><div class="k">Vente · ${esc(TEAM_OF[d.s]==='Autres'?'Autres':'Équipe '+TEAM_OF[d.s])}</div><h3>${esc(d.n)}</h3>${d.c?`<div class="cat">${esc(d.c)}</div>`:''}${d.prd?`<div class="pbadge ${d.pr==='POS'?'pos':''}">${d.pr==='POS'?'🖥️':'💳'} ${esc(d.prd)}</div>`:''}<div class="sir">SIREN ${esc(d.siren)}</div><p class="ad">${esc(d.a)}</p>${d.r?`<div class="wr">${esc(d.r)}</div>`:''}<div class="by"><i></i>${esc(d.s)}</div>${d.lat!=null||d.v?`<a class="gm" href="https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(d.a&&!/non publique|inconnue/.test(d.a)?d.a:(d.lat!=null?d.lat+','+d.lon:d.v))}" target="_blank" rel="noopener">Voir sur Google Maps ↗</a>`:''}</div>`}
+function popup(d){const c=COLORS[d.s];return `<div class="pp" style="--c:${c}"><div class="k">Vente · ${esc(TEAM_OF[d.s]==='Autres'?'Autres':'Équipe '+TEAM_OF[d.s])}</div><h3>${esc(d.n)}</h3>${d.c?`<div class="cat">${esc(d.c)}</div>`:''}${d.prd?`<div class="pbadge ${d.pr==='POS'?'pos':''}">${d.pr==='POS'?'🖥️':'💳'} ${esc(d.prd)}</div>`:''}${isOff(d)?`<div class="cbadge">⛔ ${d.ch===2?'Annulé avant installation':'Contrat terminé'}</div>`:''}<div class="sir">SIREN ${esc(d.siren)}</div><p class="ad">${esc(d.a)}</p>${d.r?`<div class="wr">${esc(d.r)}</div>`:''}<div class="by"><i></i>${esc(d.s)}</div>${d.lat!=null||d.v?`<a class="gm" href="https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(d.a&&!/non publique|inconnue/.test(d.a)?d.a:(d.lat!=null?d.lat+','+d.lon:d.v))}" target="_blank" rel="noopener">Voir sur Google Maps ↗</a>`:''}</div>`}
 
 const vcom=d=>(d.v||'').replace(/\s*\(\d+\)$/,'').replace(/^Marseille.*/,'Marseille')||'Adresse non publique';
 function drawVilles(){const q=query.toLowerCase();const base0=DATA.filter(d=>(team==='all'||TEAM_OF[d.s]===team)&&(current==='all'||d.s===current)&&(!cat||d.c===cat));
   const pc=k=>base0.filter(d=>!k||d.pr===k).length;
   document.getElementById('prods').innerHTML=[['','Tous'],['TPE','💳 TPE'],['POS','🖥️ POS']].map(([k,l])=>`<button data-p="${k}" class="${prod===k?'on':''}" role="tab" aria-selected="${prod===k}">${l}<b>${pc(k)}</b></button>`).join('');
-  const base=base0.filter(d=>!prod||d.pr===prod);
+  const b1=base0.filter(d=>!prod||d.pr===prod);
+  const sc=k=>b1.filter(d=>!k||(k==='off'?isOff(d):!isOff(d))).length;
+  document.getElementById('stats').innerHTML=[['','Tous'],['on','Actifs'],['off','Terminés']].map(([k,l])=>`<button data-st="${k}" class="${stf===k?'on':''}" role="tab" aria-selected="${stf===k}">${l}<b>${sc(k)}</b></button>`).join('');
+  const base=b1.filter(stOk);
   const m=new Map();base.forEach(d=>{const k=vcom(d);m.set(k,(m.get(k)||0)+1)});const L=[...m.entries()].sort((a,b)=>b[1]-a[1]||a[0].localeCompare(b[0],'fr'));
   if(vf&&!m.has(vf))vf='';
   document.getElementById('ville').innerHTML=`<option value="">Toutes les communes (${L.length})</option>`+L.map(([k,v])=>`<option value="${esc(k)}"${k===vf?' selected':''}>${esc(k)} · ${v}</option>`).join('');}
 function visible(){
   const q=query.toLowerCase();
-  return DATA.filter(d=>(team==='all'||TEAM_OF[d.s]===team)&&(current==='all'||d.s===current)&&(!cat||d.c===cat)&&(!prod||d.pr===prod)&&(!vf||vcom(d)===vf)&&(!q||(d.n+' '+d.a+' '+d.siren+' '+(d.v||'')).toLowerCase().includes(q)));
+  return DATA.filter(d=>(team==='all'||TEAM_OF[d.s]===team)&&(current==='all'||d.s===current)&&(!cat||d.c===cat)&&(!prod||d.pr===prod)&&stOk(d)&&(!vf||vcom(d)===vf)&&(!q||(d.n+' '+d.a+' '+d.siren+' '+(d.v||'')).toLowerCase().includes(q)));
 }
 const D30=new Date(Date.now()-30*864e5).toISOString().slice(0,10);
 const c30=s=>DATA.filter(d=>d.s===s&&d.d&&d.d>=D30).length;
@@ -1139,10 +1174,10 @@ function render(){
   const rows=visible();const pts=[];
   const big=current!=='all';
   rows.forEach(d=>{if(d.plat==null)return;
-    const m=d.pr==='POS'?L.marker([d.plat,d.plon],{icon:L.divIcon({className:'posm',html:`<i style="--c:${COLORS[d.s]}" class="${big?'big':''}"></i>`,iconSize:[0,0]})}).bindPopup(popup(d)):L.circleMarker([d.plat,d.plon],{radius:big?7:5,color:'#ffffff',weight:big?1.6:1.2,fillColor:COLORS[d.s],fillOpacity:.95}).bindPopup(popup(d));
+    const off=isOff(d);const m=d.pr==='POS'?L.marker([d.plat,d.plon],{icon:L.divIcon({className:'posm',html:`<i style="--c:${COLORS[d.s]}" class="${big?'big':''}${off?' off':''}"></i>`,iconSize:[0,0]})}).bindPopup(popup(d)):L.circleMarker([d.plat,d.plon],{radius:big?7:5,color:off?'#ff5d73':'#ffffff',weight:big?1.6:1.2,fillColor:COLORS[d.s],fillOpacity:off?.35:.95,dashArray:off?'2 2':null}).bindPopup(popup(d));
     m.addTo(layer);markers.set(d,m);pts.push([d.plat,d.plon]);});
   const list=document.getElementById('list');
-  list.innerHTML=rows.map(d=>`<button class="item${d.plat==null?' nogeo':''}" data-i="${DATA.indexOf(d)}" style="--c:${COLORS[d.s]}"><span class="d"></span><span class="t">${esc(d.n)}${d.pr==='POS'?' <span class="ptag">POS</span>':''}</span><span class="s">${esc(d.v||'Adresse non publique')}${current==='all'?' · '+esc(d.s.split(' ')[0]):''}${d.r?' · <span class="w">à vérifier</span>':''}</span></button>`).join('')||'<p style="color:var(--muted);padding:8px">Aucune vente ne correspond.</p>';
+  list.innerHTML=rows.map(d=>`<button class="item${d.plat==null?' nogeo':''}" data-i="${DATA.indexOf(d)}" style="--c:${COLORS[d.s]}"><span class="d"></span><span class="t">${esc(d.n)}${d.pr==='POS'?' <span class="ptag">POS</span>':''}${isOff(d)?' <span class="ctag">FIN</span>':''}</span><span class="s">${esc(d.v||'Adresse non publique')}${current==='all'?' · '+esc(d.s.split(' ')[0]):''}${d.r?' · <span class="w">à vérifier</span>':''}</span></button>`).join('')||'<p style="color:var(--muted);padding:8px">Aucune vente ne correspond.</p>';
   const who=current==='all'?teamLabel(team):current;
   document.getElementById('listlabel').textContent=(current==='all'?'Ventes · '+teamLabel(team):'Ventes de '+current)+' ('+rows.length+')';
   const off=rows.filter(d=>d.plat==null).length;
@@ -1169,6 +1204,7 @@ document.getElementById('sales').addEventListener('click',e=>{const b=e.target.c
 document.getElementById('list').addEventListener('click',e=>{const b=e.target.closest('.item');if(!b)return;const d=DATA[+b.dataset.i];const m=markers.get(d);
   if(m){map.flyTo(m.getLatLng(),17,{duration:.5});setTimeout(()=>m.openPopup(),550)}});
 document.getElementById('prods').addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;prod=b.dataset.p;fit(render())});
+document.getElementById('stats').addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;stf=b.dataset.st;fit(render())});
 document.getElementById('ville').addEventListener('change',e=>{vf=e.target.value;fit(render())});
 let tm;document.getElementById('q').addEventListener('input',e=>{clearTimeout(tm);tm=setTimeout(()=>{query=e.target.value.trim();fit(render())},150)});
 const fmtD=s=>{const [y,m,d]=s.split('-');return d+'/'+m+'/'+y};
@@ -1242,10 +1278,12 @@ function renderAna(){
   if(dated.length)ins.push([dl>0?'🚀':dl<0?'📉':'➡️',dl>0?'#3ddc97':dl<0?'#ff5d73':'#8c97b5',`<b>${nf(n30)}</b> vente${n30>1?'s':''} sur les 30 derniers jours`,dl?`${dl>0?'+':''}${dl} par rapport aux 30 jours d'avant`:'autant que les 30 jours d\'avant']);
   if(best)ins.push(['🏆','#fbbf24',`Meilleur mois : <b>${MNL[best.getMonth()]} ${best.getFullYear()}</b>`,`${vals[bi]} vente${vals[bi]>1?'s':''}`]);
   if(kn&&npos)ins.splice(2,0,['🖥️','#a78bfa',`<b>${pct(npos,kn)} %</b> de POS dans ${current!=='all'?'ses':'leurs'} ventes`,`${nf(npos)} caisses · ${nf(ntpe)} TPE${rpos!=null?` · ${rpos} % pour ${esc(refName)}`:''}`]);
+  {const sc=stf?(()=>{const t=stf;stf='';const r=visible();stf=t;return r})():sel;const k=sc.filter(d=>d.ch!=null),o=k.filter(isOff).length;if(k.length>=5){const rk=refRows?refRows.filter(d=>d.ch!=null):null,ro=rk?rk.filter(isOff).length:0,p=o/k.length*100,rp=rk&&rk.length?ro/rk.length*100:null;
+    ins.push(['⛔','#ff5d73',`<b>${p.toFixed(1).replace('.',',')} %</b> de churn`,`${o} contrat${o>1?'s':''} terminé${o>1?'s':''} sur ${k.length}${rp!=null?` · ${rp.toFixed(1).replace('.',',')} % pour ${esc(refName)}`:''}`])}}
   // --- en-tête
   const av=current!=='all'?`<span class="hav" style="--c:${acc}">${esc(ini(current))}</span>`:`<span class="hav team">${team==='all'?'★':esc(ini(team))}</span>`;
   let h=`<header class="hero" style="--c:${acc}">${av}<div><div class="kk">${current!=='all'?esc(TEAM_OF[current]==='Autres'?'Autres':'Équipe '+TEAM_OF[current]):'Vue d\'ensemble'}</div><h2>${esc(who)}</h2>
-    <p>${nf(n)} vente${n>1?'s':''}${cat?` · ${catI(cat)[0]} ${esc(cat)}`:''}${prod?` · ${prod==='POS'?'🖥️':'💳'} ${prod}`:''}${vf?` · 📍 ${esc(vf)}`:''}${query?` · recherche « ${esc(query)} »`:''}</p></div></header>`;
+    <p>${nf(n)} vente${n>1?'s':''}${cat?` · ${catI(cat)[0]} ${esc(cat)}`:''}${prod?` · ${prod==='POS'?'🖥️':'💳'} ${prod}`:''}${stf?` · ${stf==='off'?'⛔ contrats terminés':'✅ contrats actifs'}`:''}${vf?` · 📍 ${esc(vf)}`:''}${query?` · recherche « ${esc(query)} »`:''}</p></div></header>`;
   h+=`<div class="kpis" style="--c:${acc}">
     <div class="kpi"><div class="ki">🧾</div><div class="v" data-n="${n}">${nf(n)}</div><div class="l">ventes au total</div></div>
     <div class="kpi"><div class="ki">⚡</div><div class="v" data-n="${n30}">${nf(n30)}</div><div class="l">sur les 30 derniers jours ${dated.length?`<span class="dl ${dl>0?'up':dl<0?'dn':''}">${dl>0?'▲ +':dl<0?'▼ ':''}${dl||'='}</span>`:''}</div></div>
@@ -1275,6 +1313,37 @@ function renderAna(){
     <section class="card"><div class="ch"><h3>Top communes</h3><span>siège de l'entreprise</span></div>
     ${pod.length?`<div class="pod">${ord.map(i=>`<div class="pd p${i+1}"><div class="pm">${['🥇','🥈','🥉'][i]}</div><div class="pn">${esc(pod[i][0])}</div><div class="pb" style="height:0" data-h="${[110,82,62][i]}px"><b>${pod[i][1]}</b><small>${pct(pod[i][1],n)} %</small></div></div>`).join('')}</div>
     ${rest.length?`<ol class="vl" start="4">${rest.map(([k,v])=>`<li><span>${esc(k)}</span><b>${v}</b></li>`).join('')}</ol>`:''}`:'<p class="mut">Aucune vente.</p>'}</section></div>`;
+  // --- churn
+  const selC=stf?(()=>{const t=stf;stf='';const r=visible();stf=t;return r})():sel;
+  const chK=selC.filter(d=>d.ch!=null);
+  if(chK.length){
+    const cr=r=>{const k=r.filter(d=>d.ch!=null),t=k.filter(d=>d.ch===1).length,x=k.filter(d=>d.ch===2).length;return {k:k.length,t,x,o:t+x,p:k.length?(t+x)/k.length*100:0,pt:k.length?t/k.length*100:0,px:k.length?x/k.length*100:0}};
+    const f1=v=>v.toFixed(1).replace('.',',');
+    const C=cr(selC),RC=refRows?cr(refRows):null;
+    const circ=2*Math.PI*52,dt=C.pt/100*circ,dx=C.px/100*circ;
+    const PR=[['Terminal','💳 TPE'],['Caisse 15"','🖥️ Caisse 15"'],['Caisse tablette','📱 Caisse tablette'],['Caisse mobile','📲 Caisse mobile']].map(([k,l])=>[l,cr(selC.filter(d=>d.prd===k))]).filter(x=>x[1].k);
+    const pmx=Math.max(1,...PR.map(x=>x[1].p));
+    h+=`<section class="card churn"><div class="ch"><h3>Churn</h3><span class="cleg"><span><i style="background:#ff5d73"></i>résilié après installation</span><span><i style="background:#fbbf24"></i>annulé avant installation</span></span></div>
+      <div class="chk"><div class="chg"><svg width="120" height="120" viewBox="0 0 120 120"><circle cx="60" cy="60" r="52" fill="none" stroke="var(--raise)" stroke-width="12"/>
+        <circle cx="60" cy="60" r="52" fill="none" stroke="#ff5d73" stroke-width="12" stroke-dasharray="${dt} ${circ}"/>
+        <circle cx="60" cy="60" r="52" fill="none" stroke="#fbbf24" stroke-width="12" stroke-dasharray="${dx} ${circ}" stroke-dashoffset="${-dt}"/></svg>
+        <div class="cv"><div><b>${f1(C.p)} %</b><small>taux de churn</small></div></div></div>
+      <div class="chs"><div><span>Contrats terminés</span><b>${nf(C.o)} / ${nf(C.k)}</b></div>
+        <div><span><i style="background:#ff5d73"></i>Résiliés après installation</span><b>${nf(C.t)} · ${f1(C.pt)} %</b></div>
+        <div><span><i style="background:#fbbf24"></i>Annulés avant installation</span><b>${nf(C.x)} · ${f1(C.px)} %</b></div>
+        ${RC&&RC.k?`<div><span>Moyenne ${esc(refName)}</span><b>${f1(RC.p)} %</b></div>`:''}</div></div>
+      ${PR.length?`<div class="chp"><div class="mut sm" style="margin:0">Par produit vendu</div>${PR.map(([l,x],i)=>`<div class="cpr" data-tip="<strong>${esc(l)}</strong><br>${x.o} terminé${x.o>1?'s':''} sur ${x.k}<br>${x.t} résilié${x.t>1?'s':''} · ${x.x} annulé${x.x>1?'s':''} avant installation"><span>${l}</span><span class="cb"><i class="r" style="width:0;transition-delay:${i*60}ms" data-w="${(x.pt/pmx*100).toFixed(1)}%"></i><i class="a" style="width:0;transition-delay:${i*60}ms" data-w="${(x.px/pmx*100).toFixed(1)}%"></i></span><span><b>${f1(x.p)} %</b> · ${x.o}/${x.k}</span></div>`).join('')}</div>`:''}
+      ${chK.length<selC.length?`<p class="mut sm">Statut connu pour ${nf(chK.length)} ventes sur ${nf(selC.length)}.</p>`:''}
+      <p class="mut sm">Statut « Terminé » lu sur le portail${CHMAJ?' le '+CHMAJ.split('-').reverse().join('/'):''}, quelle que soit la date de fin.</p></section>`;
+    if(current==='all'){
+      const ppl=[...new Set(selC.map(d=>d.s))].map(s=>({s,...cr(selC.filter(d=>d.s===s))})).filter(x=>x.k>=5).sort((a,b)=>b.p-a.p||b.o-a.o);
+      if(ppl.length){const cmx=Math.max(1,...ppl.map(x=>x.p));const avgp=C.p;
+        h+=`<section class="card"><div class="ch"><h3>Churn par commercial</h3><span>du plus élevé au plus bas · 5 ventes min. · clic pour le détail</span></div>
+        <div class="clb">${ppl.map((x,i)=>`<button class="lr clr" data-s="${esc(x.s)}" style="--c:${COLORS[x.s]}"><span class="la">${esc(ini(x.s))}</span><span class="ln"><b>${esc(x.s)}</b></span>
+          <span class="cb"><i class="r" style="width:0;transition-delay:${i*30}ms" data-w="${(x.pt/cmx*100).toFixed(1)}%"></i><i class="a" style="width:0;transition-delay:${i*30}ms" data-w="${(x.px/cmx*100).toFixed(1)}%"></i></span>
+          <span class="cp ${x.p>=avgp*1.25?'hi':x.p<=avgp*.75?'lo':''}">${f1(x.p)} %</span><small>${x.o} / ${x.k}</small></button>`).join('')}</div></section>`}
+    }
+  }
   // --- classement
   if(current==='all'){
     const ppl=[...new Set(sel.map(d=>d.s))];
