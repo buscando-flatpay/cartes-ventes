@@ -1118,7 +1118,7 @@ document.getElementById('gateform').addEventListener('submit',async ev=>{
   btn.disabled=true;btn.textContent='Ouverture…';err.textContent='';
   try{
     const j=await unlock(document.getElementById('pw').value);
-    DATA=j.ventes;TEAMS=j.equipes;COLORS=j.couleurs||{};UPDATED=j.maj;CHMAJ=j.chmaj;RDV=j.rdv||{};RDVMAJ=j.rdvmaj;
+    DATA=j.ventes;TEAMS=j.equipes;COLORS=j.couleurs||{};UPDATED=j.maj;CHMAJ=j.chmaj;RDV=j.rdv||{};RDVMAJ=j.rdvmaj;Object.values(RDV).forEach(L=>L.forEach(r=>{if(/^Marseille \d/.test(r[7]||''))r[7]='Marseille'}));
     let k=0;Object.values(TEAMS).flat().forEach(s=>{if(!COLORS[s])COLORS[s]=PALETTE.filter(c=>!Object.values(COLORS).includes(c))[0]||PALETTE[k++%PALETTE.length]});
     DATA.forEach(d=>{if(!Object.values(TEAMS).flat().includes(d.s)){(TEAMS['Autres']=TEAMS['Autres']||[]).push(d.s);COLORS[d.s]=COLORS[d.s]||'#cbd5e1'}});
     document.getElementById('gate').hidden=true;init();
