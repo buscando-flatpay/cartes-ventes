@@ -1033,16 +1033,16 @@ body{background:var(--ink);color:var(--text);font-family:var(--body);font-size:1
 .rins{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin:14px 0}
 .rins>div{display:flex;gap:10px;align-items:flex-start;background:var(--raise);border-radius:12px;padding:10px 12px;font-size:12.5px;line-height:1.35}
 .rins>div>span{font-size:20px;line-height:1}.rins small{color:var(--muted)}
-.rg{display:grid;grid-template-columns:minmax(0,1.25fr) minmax(0,1fr);gap:16px;align-items:start}
+.rg{display:block}
 .rmw{position:relative}.rlay{position:absolute;z-index:500;top:10px;right:10px;display:flex;gap:6px}
 #rdvmap{height:420px;border-radius:12px;border:1px solid var(--line);background:#0d1220}
 .rleg{display:flex;flex-wrap:wrap;gap:6px 14px;font-size:11.5px;color:var(--muted);margin-top:8px;align-items:center}
 .rleg i{display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:5px}
 .rleg .grad{display:flex;align-items:center;gap:6px}.rleg .grad i{width:110px;height:8px;border-radius:4px;margin:0;background:linear-gradient(90deg,hsl(0,78%,56%),hsl(55,78%,56%),hsl(140,78%,56%))}.rleg em{font-style:normal}
-.rtab{display:flex;flex-direction:column;gap:3px;max-height:480px;overflow:auto;padding-right:2px}
-.rth,.rtr{display:grid;grid-template-columns:minmax(0,1.3fr) minmax(0,1fr) 78px;gap:10px;align-items:center}
+.rtab{display:flex;flex-direction:column;gap:3px}
+.rth,.rtr{display:grid;grid-template-columns:minmax(0,220px) minmax(0,1fr) 90px;gap:10px;align-items:center}
 .rth{font-size:10.5px;text-transform:uppercase;letter-spacing:.6px;color:var(--muted);padding:0 8px 4px}
-.rtr{padding:7px 8px;border-radius:9px;cursor:pointer;font-size:13px}.rtr:hover{background:var(--raise)}
+.rtr{padding:7px 8px;border-radius:9px;font-size:13px}.rtr:hover{background:var(--raise)}
 .rtr .rn{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .rtr .rd{display:flex;align-items:center;gap:8px}.rtr .rd i{display:block;height:8px;border-radius:4px;background:var(--c);opacity:.85;transition:width .9s cubic-bezier(.2,.8,.2,1)}
 .rtr .rd b{font-variant-numeric:tabular-nums}
@@ -1305,8 +1305,6 @@ function rdvBlock(name){
       ${TY.map(([t,x])=>`<div class="rs"><span class="rt">${RTY[t]}</span><span class="rb"><i style="width:0;background:${convCol(x.p)}" data-w="${x.p.toFixed(1)}%"></i></span><span class="rv"><b>${f1(x.p)} %</b> · ${x.v}/${x.d}</span></div>`).join('')}</div>
     ${best?`<div class="rins"><div><span>🎯</span><div><b>${esc(best.v)}</b> : meilleure conversion<br><small>${f1(best.p)} % sur ${best.d} RDV</small></div></div>${worst&&worst!==best?`<div><span>🧊</span><div><b>${esc(worst.v)}</b> : conversion la plus faible<br><small>${f1(worst.p)} % sur ${worst.d} RDV</small></div></div>`:''}${V[0]?`<div><span>📍</span><div><b>${esc(V[0].v)}</b> : le plus de RDV<br><small>${V[0].d} RDV · ${pct(V[0].d,S.d)} % du total</small></div></div>`:''}</div>`:''}
     <div class="rg">
-      <div class="rmw"><div class="rlay">${chip('rlay','v','Par ville',rdvLay)}${chip('rlay','r','Chaque RDV',rdvLay)}</div><div id="rdvmap"></div>
-        <div class="rleg">${rdvLay==='v'?`<span>Taille = nombre de RDV · couleur = conversion</span><span class="grad"><em>0 %</em><i></i><em>60 %+</em></span>`:`<span><i style="background:#3ddc97"></i>Vente</span><span><i style="background:#ff5d73"></i>Refus</span><span><i style="background:#f97316"></i>Impossible</span><span><i style="background:#38bdf8"></i>En attente</span><span><i style="background:#64748b"></i>Annulé</span>`}</div></div>
       <div class="rtab"><div class="rth"><span>Commune</span><span>RDV</span><span>Conversion</span></div>
         ${shown.map((x,i)=>`<div class="rtr${x.d<3?' few':''}" data-rv="${esc(x.v)}"><span class="rn">${esc(x.v)}</span><span class="rd"><i style="width:0;transition-delay:${i*25}ms" data-w="${(x.d/vmx*100).toFixed(1)}%"></i><b>${x.d}</b></span><span class="rp" style="--k:${convCol(x.p)}"><b>${f1(x.p)} %</b><small>${x.s}/${x.d}</small></span></div>`).join('')||'<p class="mut">Aucun RDV effectué sur la période.</p>'}
         ${V.length>12?`<button class="more" id="rdvmore">${rdvAll?'Réduire':'Voir les '+V.length+' communes'}</button>`:''}
@@ -1459,14 +1457,14 @@ function renderAna(){
         <span class="lc" title="Catégorie principale">${x.cat?catI(x.cat)[0]+' '+esc(x.cat)+' · '+x.cp+' %':'–'}</span></button>`).join('')}</div></section>`;
   }
   const root=document.getElementById('ana-in');root.innerHTML=h;animate(root);
-  if(current!=='all'&&RDV[current])rdvMapInit(current);else if(rdvMap){rdvMap.remove();rdvMap=null}
+  if(rdvMap){rdvMap.remove();rdvMap=null}
   const key=team+'|'+current;if(key!==lastKey){lastKey=key;document.getElementById('ana').scrollTop=0}
 }
 document.getElementById('ana').addEventListener('click',e=>{
   if(e.target.closest('#morecats')){allCats=!allCats;renderAna();return}
   if(e.target.closest('#rdvmore')){rdvAll=!rdvAll;renderAna();return}
   const rc=e.target.closest('[data-rsrc],[data-rper],[data-rlay]');if(rc){if(rc.dataset.rsrc)rdvSrc=rc.dataset.rsrc;if(rc.dataset.rper)rdvPer=rc.dataset.rper;if(rc.dataset.rlay)rdvLay=rc.dataset.rlay;renderAna();return}
-  const rv=e.target.closest('[data-rv]');if(rv&&rdvMap){const x=rdvVilles(rdvRows(current)).find(y=>y.v===rv.dataset.rv);if(x&&x.lat!=null){rdvMap.flyTo([x.lat,x.lon],Math.max(rdvMap.getZoom(),12),{duration:.6});document.getElementById('rdvmap').scrollIntoView({behavior:RM?'auto':'smooth',block:'center'})}return}
+  const rv=null;if(rv&&rdvMap){const x=rdvVilles(rdvRows(current)).find(y=>y.v===rv.dataset.rv);if(x&&x.lat!=null){rdvMap.flyTo([x.lat,x.lon],Math.max(rdvMap.getZoom(),12),{duration:.6});document.getElementById('rdvmap').scrollIntoView({behavior:RM?'auto':'smooth',block:'center'})}return}
   const r=e.target.closest('[data-cat]');if(r){cat=cat===r.dataset.cat?null:r.dataset.cat;fit(render());return}
   const t=e.target.closest('.lr');if(t){current=t.dataset.s;if(team!=='all'&&TEAM_OF[current]!==team){team=TEAM_OF[current];drawSales()}fit(render());save();document.getElementById('ana').scrollTo({top:0,behavior:RM?'auto':'smooth'})}
 });
