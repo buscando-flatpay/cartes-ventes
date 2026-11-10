@@ -1118,7 +1118,7 @@ document.getElementById('gateform').addEventListener('submit',async ev=>{
   btn.disabled=true;btn.textContent='Ouverture…';err.textContent='';
   try{
     const j=await unlock(document.getElementById('pw').value);
-    DATA=j.ventes;TEAMS=j.equipes;COLORS=j.couleurs||{};UPDATED=j.maj;CHMAJ=j.chmaj;RDV=j.rdv||{};RDVMAJ=j.rdvmaj;Object.values(RDV).forEach(L=>L.forEach(r=>{if(/^Marseille \d/.test(r[7]||''))r[7]='Marseille'}));
+    DATA=j.ventes;TEAMS=j.equipes;COLORS=j.couleurs||{};UPDATED=j.maj;CHMAJ=j.chmaj;RDV=j.rdv||{};RDVMAJ=j.rdvmaj;
     let k=0;Object.values(TEAMS).flat().forEach(s=>{if(!COLORS[s])COLORS[s]=PALETTE.filter(c=>!Object.values(COLORS).includes(c))[0]||PALETTE[k++%PALETTE.length]});
     DATA.forEach(d=>{if(!Object.values(TEAMS).flat().includes(d.s)){(TEAMS['Autres']=TEAMS['Autres']||[]).push(d.s);COLORS[d.s]=COLORS[d.s]||'#cbd5e1'}});
     document.getElementById('gate').hidden=true;init();
@@ -1276,60 +1276,38 @@ const RST={V:['Vente','#3ddc97'],R:['Refus du client','#ff5d73'],I:['Impossible'
 const RDONE=new Set(['V','R','I','D','O']),RCANC=new Set(['A','M','Q','P']);
 const RTY={M:'Premier RDV',R:'Reprogrammé',F:'Follow-up'};
 const convCol=p=>`hsl(${Math.max(0,Math.min(140,(p-10)*2.6))},78%,56%)`;
-function rdvRows(name){const all=RDV[name]||[];const lim=rdvPer==='all'?'':iso(new Date(Date.now()-(+rdvPer)*864e5));
-  return all.filter(r=>(rdvSrc==='all'||r[2]===rdvSrc)&&(!lim||r[0]>=lim))}
-function rdvStats(rows){const d=rows.filter(r=>RDONE.has(r[3])),v=d.filter(r=>r[3]==='V').length;return {n:rows.length,d:d.length,v,c:rows.filter(r=>RCANC.has(r[3])).length,p:d.length?v/d.length*100:0}}
-function rdvVilles(rows){const m=new Map();rows.filter(r=>RDONE.has(r[3])&&r[7]).forEach(r=>{let x=m.get(r[7]);if(!x){x={v:r[7],d:0,s:0,la:0,lo:0,k:0};m.set(r[7],x)}x.d++;if(r[3]==='V')x.s++;if(r[4]!==''&&r[4]!=null){x.la+=+r[4];x.lo+=+r[5];x.k++}});
-  return [...m.values()].map(x=>({...x,p:x.s/x.d*100,lat:x.k?x.la/x.k:null,lon:x.k?x.lo/x.k:null})).sort((a,b)=>b.d-a.d||b.s-a.s)}
+function rdvSel(name){const R=RDV[name];if(!R)return null;
+  const k=R.k.filter(x=>rdvSrc==='all'||x[0]===rdvSrc);
+  const cm=new Map();R.c.filter(x=>rdvSrc==='all'||x[1]===rdvSrc).forEach(([v,s,d,n])=>{const y=cm.get(v)||{v,d:0,s:0};y.d+=d;y.s+=n;cm.set(v,y)});
+  return {k,V:[...cm.values()].map(y=>({...y,p:y.d?y.s/y.d*100:0})).sort((a,b)=>b.d-a.d||b.s-a.s)}}
+function rdvStatsK(k){let n=0,d=0,v=0,c=0;k.forEach(([s,t,st,m])=>{n+=m;if(RDONE.has(st))d+=m;if(st==='V')v+=m;if(RCANC.has(st))c+=m});return {n,d,v,c,p:d?v/d*100:0}}
 function rdvBlock(name){
-  if(!(RDV[name]||[]).length)return '';
-  const rows=rdvRows(name),S=rdvStats(rows),f1=v=>v.toFixed(0);
-  const per=(RDV[name]||[]).filter(r=>rdvPer==='all'||r[0]>=iso(new Date(Date.now()-(+rdvPer)*864e5)));
-  const IH=rdvStats(per.filter(r=>r[2]==='IH')),OG=rdvStats(per.filter(r=>r[2]==='OG'));
-  const V=rdvVilles(rows),vmx=Math.max(1,...V.map(x=>x.d));
+  const R=RDV[name];if(!R)return '';
+  const X=rdvSel(name),S=rdvStatsK(X.k),f1=v=>v.toFixed(0);
+  const IH=rdvStatsK(R.k.filter(x=>x[0]==='IH')),OG=rdvStatsK(R.k.filter(x=>x[0]==='OG'));
+  const V=X.V,vmx=Math.max(1,...V.map(x=>x.d));
   const best=V.filter(x=>x.d>=5).sort((a,b)=>b.p-a.p)[0],worst=V.filter(x=>x.d>=5).sort((a,b)=>a.p-b.p)[0];
-  const TY=['M','R','F'].map(t=>[t,rdvStats(rows.filter(r=>r[1]===t))]).filter(x=>x[1].n);
-  const first=(RDV[name]||[])[0][0];
+  const TY=['M','R','F'].map(t=>[t,rdvStatsK(X.k.filter(x=>x[1]===t))]).filter(x=>x[1].n);
+  const tot=R.k.reduce((a,x)=>a+x[3],0);
   const chip=(k,v,l,cur)=>`<button class="rc${cur===v?' on':''}" data-${k}="${v}">${l}</button>`;
   const shown=rdvAll?V:V.slice(0,12);
+  const unk=S.d-V.reduce((a,x)=>a+x.d,0);
   return `<section class="card rdv" style="--c:${COLORS[name]||ACC}">
-    <div class="ch"><h3>Terrain &amp; conversion</h3><span>${nf((RDV[name]||[]).length)} RDV depuis le ${first.split('-').reverse().join('/')}${RDVMAJ?' · maj '+RDVMAJ.split('-').reverse().join('/'):''}</span></div>
-    <div class="rcs"><div class="rcg"><span>Source</span>${chip('rsrc','all','Tous',rdvSrc)}${chip('rsrc','IH','IH',rdvSrc)}${chip('rsrc','OG','OG',rdvSrc)}</div>
-      <div class="rcg"><span>Période</span>${chip('rper','all','Depuis le début',rdvPer)}${chip('rper','90','90 j',rdvPer)}${chip('rper','30','30 j',rdvPer)}</div></div>
+    <div class="ch"><h3>Terrain &amp; conversion</h3><span>${nf(tot)} RDV depuis le ${R.f.split('-').reverse().join('/')}${RDVMAJ?' · maj '+RDVMAJ.split('-').reverse().join('/'):''}</span></div>
+    <div class="rcs"><div class="rcg"><span>Source</span>${chip('rsrc','all','Tous',rdvSrc)}${chip('rsrc','IH','IH',rdvSrc)}${chip('rsrc','OG','OG',rdvSrc)}</div></div>
     <div class="rk4">
       <div class="rk"><b data-n="${S.d}">${S.d}</b><small>RDV effectués</small></div>
       <div class="rk"><b data-n="${S.v}">${S.v}</b><small>ventes signées</small></div>
       <div class="rk big" style="--k:${convCol(S.p)}"><b>${f1(S.p)} %</b><small>taux de conversion</small><i style="width:0" data-w="${S.p.toFixed(1)}%"></i></div>
       <div class="rk"><b data-n="${S.c}">${S.c}</b><small>annulés / reprogrammés</small></div></div>
-    <div class="rsrc">${[['IH','RDV fournis (IH)',IH],['OG','RDV générés (OG)',OG]].map(([k,l,x])=>`<div class="rs"><span class="rt">${l}</span><span class="rb"><i style="width:0;background:${convCol(x.p)}" data-w="${x.p.toFixed(1)}%"></i></span><span class="rv"><b>${f1(x.p)} %</b> · ${x.v}/${x.d}</span></div>`).join('')}
+    <div class="rsrc">${[['IH','RDV fournis (IH)',IH],['OG','RDV générés (OG)',OG]].filter(x=>x[2].d).map(([k,l,x])=>`<div class="rs"><span class="rt">${l}</span><span class="rb"><i style="width:0;background:${convCol(x.p)}" data-w="${x.p.toFixed(1)}%"></i></span><span class="rv"><b>${f1(x.p)} %</b> · ${x.v}/${x.d}</span></div>`).join('')}
       ${TY.map(([t,x])=>`<div class="rs"><span class="rt">${RTY[t]}</span><span class="rb"><i style="width:0;background:${convCol(x.p)}" data-w="${x.p.toFixed(1)}%"></i></span><span class="rv"><b>${f1(x.p)} %</b> · ${x.v}/${x.d}</span></div>`).join('')}</div>
-    ${best?`<div class="rins"><div><span>🎯</span><div><b>${esc(best.v)}</b> : meilleure conversion<br><small>${f1(best.p)} % sur ${best.d} RDV</small></div></div>${worst&&worst!==best?`<div><span>🧊</span><div><b>${esc(worst.v)}</b> : conversion la plus faible<br><small>${f1(worst.p)} % sur ${worst.d} RDV</small></div></div>`:''}${V[0]?`<div><span>📍</span><div><b>${esc(V[0].v)}</b> : le plus de RDV<br><small>${V[0].d} RDV · ${pct(V[0].d,S.d)} % du total</small></div></div>`:''}</div>`:''}
-    <div class="rg">
-      <div class="rtab"><div class="rth"><span>Commune</span><span>RDV</span><span>Conversion</span></div>
-        ${shown.map((x,i)=>`<div class="rtr${x.d<3?' few':''}" data-rv="${esc(x.v)}"><span class="rn">${esc(x.v)}</span><span class="rd"><i style="width:0;transition-delay:${i*25}ms" data-w="${(x.d/vmx*100).toFixed(1)}%"></i><b>${x.d}</b></span><span class="rp" style="--k:${convCol(x.p)}"><b>${f1(x.p)} %</b><small>${x.s}/${x.d}</small></span></div>`).join('')||'<p class="mut">Aucun RDV effectué sur la période.</p>'}
+    ${V[0]?`<div class="rins">${best?`<div><span>🎯</span><div><b>${esc(best.v)}</b> : meilleure conversion<br><small>${f1(best.p)} % sur ${best.d} RDV</small></div></div>`:''}${worst&&worst!==best?`<div><span>🧊</span><div><b>${esc(worst.v)}</b> : conversion la plus faible<br><small>${f1(worst.p)} % sur ${worst.d} RDV</small></div></div>`:''}<div><span>📍</span><div><b>${esc(V[0].v)}</b> : le plus de RDV<br><small>${V[0].d} RDV · ${pct(V[0].d,S.d)} % du total</small></div></div></div>`:''}
+    <div class="rg"><div class="rtab"><div class="rth"><span>Commune</span><span>RDV</span><span>Conversion</span></div>
+        ${shown.map((x,i)=>`<div class="rtr${x.d<3?' few':''}"><span class="rn">${esc(x.v)}</span><span class="rd"><i style="width:0;transition-delay:${i*25}ms" data-w="${(x.d/vmx*100).toFixed(1)}%"></i><b>${x.d}</b></span><span class="rp" style="--k:${convCol(x.p)}"><b>${f1(x.p)} %</b><small>${x.s}/${x.d}</small></span></div>`).join('')||'<p class="mut">Aucun RDV effectué.</p>'}
         ${V.length>12?`<button class="more" id="rdvmore">${rdvAll?'Réduire':'Voir les '+V.length+' communes'}</button>`:''}
-        <p class="mut sm">RDV effectués = vente, refus, impossible ou en attente. Les annulés et reprogrammés ne comptent pas dans la conversion. Moins de 3 RDV : à prendre avec prudence.</p></div></div>
+        <p class="mut sm">RDV effectués = vente, refus, impossible ou en attente. Les annulés et reprogrammés ne comptent pas dans la conversion. Commune du siège au registre${unk>0?` (${unk} RDV sans commune connue)`:''}. Moins de 3 RDV : à prendre avec prudence.</p></div></div>
   </section>`}
-function rdvMapInit(name){
-  if(rdvMap){rdvMap.remove();rdvMap=null}
-  const el=document.getElementById('rdvmap');if(!el)return;
-  rdvMap=L.map(el,{zoomControl:true,attributionControl:false,scrollWheelZoom:false,zoomSnap:.25});
-  L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/{z}/{y}/{x}',{maxZoom:19}).addTo(rdvMap);
-  const rows=rdvRows(name),pts=[];
-  if(rdvLay==='v'){
-    rdvVilles(rows).filter(x=>x.lat!=null).sort((a,b)=>b.d-a.d).forEach(x=>{pts.push([x.lat,x.lon]);
-      L.circleMarker([x.lat,x.lon],{radius:5+Math.sqrt(x.d)*3.2,color:'#0d1220',weight:1.2,fillColor:convCol(x.p),fillOpacity:.85})
-       .bindTooltip(`<b>${esc(x.v)}</b><br>${x.d} RDV · ${x.s} vente${x.s>1?'s':''}<br>Conversion ${x.p.toFixed(0)} %`,{direction:'top',className:'rtip'}).addTo(rdvMap)});
-  }else{
-    const seen={};
-    rows.filter(r=>r[4]!==''&&r[4]!=null).forEach(r=>{let la=+r[4],lo=+r[5];const k=la+','+lo,n=seen[k]=(seen[k]||0)+1;if(n>1){const a=n*2.4,q=.0004*Math.sqrt(n);la+=q*Math.sin(a);lo+=q*Math.cos(a)}pts.push([la,lo]);
-      const c=RST[r[3]]?RST[r[3]][1]:'#64748b';
-      L.circleMarker([la,lo],{radius:5,color:'#0d1220',weight:1,fillColor:c,fillOpacity:.9})
-       .bindTooltip(`<b>${esc(r[8])}</b><br>${r[0].split('-').reverse().join('/')} · ${RTY[r[1]]} · ${r[2]}<br>${esc(RST[r[3]]?RST[r[3]][0]:r[3])} · ${esc(r[7]||'')}`,{direction:'top',className:'rtip'}).addTo(rdvMap)});
-  }
-  if(pts.length){const b=L.latLngBounds(pts);rdvMap.fitBounds(b.pad(.08),{maxZoom:13})}else rdvMap.setView([43.4,5.4],9);
-  setTimeout(()=>rdvMap&&rdvMap.invalidateSize(),60);
-}
 
 const iso=x=>x.toISOString().slice(0,10);
 function animate(root){
@@ -1378,7 +1356,7 @@ function renderAna(){
   if(kn&&npos)ins.splice(2,0,['🖥️','#a78bfa',`<b>${pct(npos,kn)} %</b> de POS dans ${current!=='all'?'ses':'leurs'} ventes`,`${nf(npos)} caisses · ${nf(ntpe)} TPE${rpos!=null?` · ${rpos} % pour ${esc(refName)}`:''}`]);
   {const sc=stf?(()=>{const t=stf;stf='';const r=visible();stf=t;return r})():sel;const k=sc.filter(d=>d.ch!=null),o=k.filter(isOff).length;if(k.length>=5){const rk=refRows?refRows.filter(d=>d.ch!=null):null,ro=rk?rk.filter(isOff).length:0,p=o/k.length*100,rp=rk&&rk.length?ro/rk.length*100:null;
     ins.push(['⛔','#ff5d73',`<b>${p.toFixed(1).replace('.',',')} %</b> de churn`,`${o} contrat${o>1?'s':''} terminé${o>1?'s':''} sur ${k.length}${rp!=null?` · ${rp.toFixed(1).replace('.',',')} % pour ${esc(refName)}`:''}`])}}
-  if(current!=='all'&&RDV[current]&&RDV[current].length){const S=rdvStats(RDV[current]);if(S.d)ins.push(['🎯','#38bdf8',`<b>${S.p.toFixed(0)} %</b> de conversion en RDV`,`${S.v} ventes sur ${S.d} RDV effectués`])}
+  if(current!=='all'&&RDV[current]){const S=rdvStatsK(RDV[current].k);if(S.d)ins.push(['🎯','#38bdf8',`<b>${S.p.toFixed(0)} %</b> de conversion en RDV`,`${S.v} ventes sur ${S.d} RDV effectués`])}
   // --- en-tête
   const av=current!=='all'?`<span class="hav" style="--c:${acc}">${esc(ini(current))}</span>`:`<span class="hav team">${team==='all'?'★':esc(ini(team))}</span>`;
   let h=`<header class="hero" style="--c:${acc}">${av}<div><div class="kk">${current!=='all'?esc(TEAM_OF[current]==='Autres'?'Autres':'Équipe '+TEAM_OF[current]):'Vue d\'ensemble'}</div><h2>${esc(who)}</h2>
@@ -1464,7 +1442,6 @@ document.getElementById('ana').addEventListener('click',e=>{
   if(e.target.closest('#morecats')){allCats=!allCats;renderAna();return}
   if(e.target.closest('#rdvmore')){rdvAll=!rdvAll;renderAna();return}
   const rc=e.target.closest('[data-rsrc],[data-rper],[data-rlay]');if(rc){if(rc.dataset.rsrc)rdvSrc=rc.dataset.rsrc;if(rc.dataset.rper)rdvPer=rc.dataset.rper;if(rc.dataset.rlay)rdvLay=rc.dataset.rlay;renderAna();return}
-  const rv=null;if(rv&&rdvMap){const x=rdvVilles(rdvRows(current)).find(y=>y.v===rv.dataset.rv);if(x&&x.lat!=null){rdvMap.flyTo([x.lat,x.lon],Math.max(rdvMap.getZoom(),12),{duration:.6});document.getElementById('rdvmap').scrollIntoView({behavior:RM?'auto':'smooth',block:'center'})}return}
   const r=e.target.closest('[data-cat]');if(r){cat=cat===r.dataset.cat?null:r.dataset.cat;fit(render());return}
   const t=e.target.closest('.lr');if(t){current=t.dataset.s;if(team!=='all'&&TEAM_OF[current]!==team){team=TEAM_OF[current];drawSales()}fit(render());save();document.getElementById('ana').scrollTo({top:0,behavior:RM?'auto':'smooth'})}
 });
