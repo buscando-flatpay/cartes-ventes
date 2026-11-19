@@ -26,6 +26,7 @@ def main(path, agent, etat, arg):
         a['blocage'] = arg
         prev = st['agents'].get(agent, {})
         if prev.get('rapport'): a['dernier_rapport'] = prev['rapport']; a['dernier_ok'] = prev.get('fin') if prev.get('etat') != 'bloque' else prev.get('dernier_ok')
+        elif prev.get('dernier_rapport'): a['dernier_rapport'] = prev['dernier_rapport']; a['dernier_ok'] = prev.get('dernier_ok')
     st['agents'][agent] = a
     h = st['historique'].setdefault(agent, {})
     h[jour] = etat
