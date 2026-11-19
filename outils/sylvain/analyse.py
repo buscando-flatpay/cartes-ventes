@@ -6,7 +6,7 @@ Usage : python3 analyse.py releve.txt ventes.json AAAA-MM-JJ(aujourd'hui) rappor
 releve.txt : lignes de outils/sylvain/releve.js
   équipe | field sales | commerce | SIREN | type RDV | source | date RDV (JJ/MM/AAAA HH:MM) | statut
 Règles :
-  - jours = aujourd'hui + les 2 jours suivants, dimanche exclu (3 jours au total)
+  - jours = les 3 prochains jours ouvrés (lundi-vendredi) à partir d'aujourd'hui inclus
   - RDV comptés : tous sauf les reprogrammés (type RESCHEDULED ou statut « reprogrammé »)
     et les annulés (statut commençant par « Annulé »)
   - META : nom du commerce contenant le mot « meta » (META, [meta], (META), Meta POS…)
@@ -19,6 +19,7 @@ sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), '..'
 from maj import nom
 
 OBJECTIF = 2.3
+EXCLUS = {'Anisse Caputo'}   # commerciaux à ne pas suivre (demande de Quentin)
 META = re.compile(r'(?i)(^|[^a-z])meta([^a-z]|$)')
 
 def iso(d):
@@ -28,13 +29,13 @@ def iso(d):
 def jours_suivants(j, n=3):
     d = date.fromisoformat(j); out = []
     while len(out) < n:
-        if d.weekday() != 6: out.append(d.isoformat())
+        if d.weekday() < 5: out.append(d.isoformat())
         d += timedelta(days=1)
     return out
 
 def main(releve, vj, jour, rapport, equipe='Quentin'):
     v = json.load(open(vj, encoding='utf-8'))
-    membres = list(v['equipes'].get(equipe, []))
+    membres = [m for m in v['equipes'].get(equipe, []) if m not in EXCLUS]
     ventes = {}
     for x in v['ventes']:
         s = x.get('siren', '')
@@ -49,6 +50,7 @@ def main(releve, vj, jour, rapport, equipe='Quentin'):
         d = iso(dt)
         if d not in J: continue
         s, _ = nom(s0)
+        if s in EXCLUS: continue
         if ty == 'RESCHEDULED' or re.search(r'(?i)reprogramm', st): exclus['reprogrammes'] += 1; continue
         if re.match(r'(?i)annul', st): exclus['annules'] += 1; continue
         if s not in membres: membres.append(s)
