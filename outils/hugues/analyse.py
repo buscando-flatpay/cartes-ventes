@@ -1,7 +1,13 @@
 #!/usr/bin/env python3
 """Hugues — compilation du mois et chiffres de la veille, d'après le Power BI « Field Sales Report - TM - FR ».
 
-Usage : python3 analyse.py releve.txt AAAA-MM-JJ(aujourd'hui) rapport.json [precedent.json]
+Usage : python3 analyse.py releve.txt AAAA-MM-JJ(aujourd'hui) rapport.json [precedent.json] [--cloture AAAA-MM] [--fin-mois cloture.json]
+
+--cloture AAAA-MM : relevé du mois précédent (Period réglé sur ce mois) pour figer sa compilation définitive,
+                    rangée ensuite par Ruzard dans archives/mois/AAAA-MM (champ hugues_final).
+                    La « veille » sort aussi : dernier jour du mois = clôture − dernier passage du mois.
+--fin-mois cloture.json : au premier passage d'un nouveau mois, reprend la veille calculée par la clôture
+                    (ventes et installations du dernier jour du mois précédent).
 
 releve.txt : sorties de outils/hugues/releve.js (mode dash = TM Dash, puis mode og = Sales Performance)
 precedent.json : le rapport du passage précédent (agents.hugues.rapport du QG), pour calculer la veille
@@ -26,7 +32,7 @@ def num(v):
     try: return int(float(v)) if v not in ('', '-', '(Vide)') else 0
     except ValueError: return 0
 
-def main(releve, jour, rapport, precedent=None):
+def main(releve, jour, rapport, precedent=None, cloture=None, fin_mois=None):
     J = date.fromisoformat(jour)
     meta, lignes = {}, {}
     for l in open(releve, encoding='utf-8'):
@@ -46,12 +52,13 @@ def main(releve, jour, rapport, precedent=None):
     rep = {'jour': jour, 'mois': mois, 'maj_powerbi': meta.get('maj', ''), 'equipe': equipe, 'bug': False, 'raison': '', 'avertissements': []}
 
     # ---- contrôle de cohérence (bug Power BI)
-    attendu = f"{J.year}-{J.month:02d}"
+    attendu = cloture or f"{J.year}-{J.month:02d}"
+    if cloture: rep.update(cloture=True, definitif=True)
     if not lignes or not total:
         rep.update(bug=True, raison="Tableau Power BI vide ou illisible")
     elif mois != attendu:
         rep.update(bug=True, raison=f"Le filtre Period du Power BI est sur {mois or '?'} au lieu de {attendu}")
-    elif total.get('inst', 0) == 0 and J.day >= 3:
+    elif total.get('inst', 0) == 0 and (cloture or J.day >= 3):
         rep.update(bug=True, raison="Total des installations du mois à 0 : le Power BI beugue")
     md = re.search(r'(\d\d)/(\d\d)/(\d\d)', rep['maj_powerbi'])
     if md:
@@ -71,6 +78,9 @@ def main(releve, jour, rapport, precedent=None):
         x['pct_ventes'] = round(100 * x['ventes'] / x['budget']) if x['budget'] else None
         comp.append(x)
     comp.sort(key=lambda x: (-x['inst'], -x['ventes'], x['nom']))
+    if not comp:
+        rep.update(bug=True, raison="Aucune ligne commercial dans le tableau (matrice repliée : déplier Sud Est puis l'équipe)")
+        out = json.dumps(rep, ensure_ascii=False, indent=1); open(rapport, 'w', encoding='utf-8').write(out); print(out); return
     rep['compilation'] = comp
     rep['totaux'] = {c: total.get(c, sum(x[c] for x in comp)) for c in CHAMPS.values()}
     rep['totaux']['budget'] = total.get('budget', sum(x['budget'] for x in comp))
@@ -91,11 +101,25 @@ def main(releve, jour, rapport, precedent=None):
         if any(v[c] < 0 for v in rep['veille'] for c in CHAMPS.values()):
             rep['avertissements'].append("Certains chiffres ont baissé depuis hier (corrections dans le Power BI)")
     elif prev and prev.get('mois') and prev.get('mois') != mois and prev.get('base_veille', True):
-        rep['veille'] = None; rep['veille_note'] = "Nouveau mois : la compilation repart de zéro, pas de chiffres de la veille aujourd'hui."
+        fm = None
+        if fin_mois:
+            try: fm = json.load(open(fin_mois, encoding='utf-8'))
+            except Exception: fm = None
+        if fm and fm.get('mois') == prev.get('mois') and fm.get('veille') is not None:
+            rep['veille'] = fm['veille']; rep['veille_depuis'] = fm.get('veille_depuis')
+            rep['veille_note'] = f"Nouveau mois : la compilation repart de zéro. « Veille » = dernier jour de {prev['mois']}, d'après la compilation définitive."
+        else:
+            rep['veille'] = None; rep['veille_note'] = "Nouveau mois : la compilation repart de zéro, pas de chiffres de la veille aujourd'hui."
     else:
         rep['veille'] = None; rep['veille_note'] = "Premier passage : les chiffres de la veille seront disponibles dès demain."
     out = json.dumps(rep, ensure_ascii=False, indent=1)
     open(rapport, 'w', encoding='utf-8').write(out); print(out)
 
 if __name__ == '__main__':
-    main(*sys.argv[1:5])
+    a, opt = [], {}
+    it = iter(sys.argv[1:])
+    for x in it:
+        if x == '--cloture': opt['cloture'] = next(it)
+        elif x == '--fin-mois': opt['fin_mois'] = next(it)
+        else: a.append(x)
+    main(*a[:4], **opt)
