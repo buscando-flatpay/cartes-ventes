@@ -7,8 +7,8 @@ releve.txt : lignes de outils/sylvain/releve.js
   équipe | field sales | commerce | SIREN | type RDV | source | date RDV (JJ/MM/AAAA HH:MM) | statut
 Règles :
   - jours = les 3 prochains jours ouvrés (lundi-vendredi) à partir d'aujourd'hui inclus
-  - RDV comptés : tous sauf les reprogrammés (type RESCHEDULED ou statut « reprogrammé »)
-    et les annulés (statut commençant par « Annulé »)
+  - RDV comptés : tous sauf les reprogrammés (type RESCHEDULED ou statut « reprogrammé »),
+    les follow-ups (type FOLLOW_UP) et les annulés (statut commençant par « Annulé »)
   - META : nom du commerce contenant le mot « meta » (META, [meta], (META), Meta POS…)
   - déjà client : SIREN présent dans les ventes de la carte (toutes équipes) ; « suivi_recent » si le même
     commercial a fait la vente il y a 30 jours ou moins (suivi normal, moins urgent)
@@ -42,7 +42,7 @@ def main(releve, vj, jour, rapport, equipe='Quentin'):
         if re.fullmatch(r'\d{9}', s or ''): ventes.setdefault(s, []).append(x)
     J = jours_suivants(jour)
     par = {}
-    alertes, exclus = [], {'reprogrammes': 0, 'annules': 0}
+    alertes, exclus = [], {'reprogrammes': 0, 'follow_up': 0, 'annules': 0}
     for l in open(releve, encoding='utf-8'):
         p = [x.strip() for x in l.rstrip('\n').split('|')]
         if len(p) < 8: continue
@@ -52,6 +52,7 @@ def main(releve, vj, jour, rapport, equipe='Quentin'):
         s, _ = nom(s0)
         if s in EXCLUS: continue
         if ty == 'RESCHEDULED' or re.search(r'(?i)reprogramm', st): exclus['reprogrammes'] += 1; continue
+        if ty == 'FOLLOW_UP': exclus['follow_up'] += 1; continue
         if re.match(r'(?i)annul', st): exclus['annules'] += 1; continue
         if s not in membres: membres.append(s)
         c = par.setdefault(s, {'par_jour': {k: 0 for k in J}, 'meta_par_jour': {k: 0 for k in J}})
