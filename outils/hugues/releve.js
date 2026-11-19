@@ -7,7 +7,7 @@
 //   L|<ligne>|<col1>=<v>|<col2>=<v>…        une ligne par ligne du tableau (France, Sud Est, TM, commerciaux, Total)
 (async () => {
 const CFG = Object.assign({ mode: 'dash' }, window.HUGUES || {});
-const KEEP = { dash: ['Installations', 'Sales (Signed)', 'POS Sales', 'POS Installations'], og: ['Sales OG'] }[CFG.mode] || null;
+const KEEP = { dash: ['Budget (Adj) (index)', 'Installations', 'Sales (Signed)', 'POS Sales', 'POS Installations'], og: ['Sales OG'] }[CFG.mode] || null;
 const keep = k => !KEEP || KEEP.some(p => k === p || (p === 'Sales OG' && k.startsWith(p)));
 const sleep = t => new Promise(r => setTimeout(r, t));
 const waitFor = async (f, ms = 20000) => { const t = Date.now(); while (Date.now() - t < ms) { const v = f(); if (v) return v; await sleep(250); } return null; };

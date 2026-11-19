@@ -7,7 +7,7 @@ releve.txt : sorties de outils/hugues/releve.js (mode dash = TM Dash, puis mode 
 precedent.json : le rapport du passage précédent (agents.hugues.rapport du QG), pour calculer la veille
 
 Compilation (mois en cours, par commercial) : installations, ventes (Sales Signed), ventes OG, ventes POS,
-installations POS.
+installations POS, objectif du mois (Budget (Adj) (index)) et % de l'objectif atteint en installations et en ventes.
 Veille : différence entre le cumul du mois lu aujourd'hui et celui du passage précédent (même mois).
 
 CONTRÔLE POWER BI : si le total des installations du mois de l'équipe vaut 0 (à partir du 3 du mois),
@@ -18,6 +18,7 @@ import json, re, sys
 from datetime import date, timedelta
 
 CHAMPS = {'Installations': 'inst', 'Sales (Signed)': 'ventes', 'Sales OG': 'og', 'POS Sales': 'pos_ventes', 'POS Installations': 'pos_inst'}
+BUDGET = 'Budget (Adj) (index)'   # objectif du mois (installations et ventes), colonne 2 du Power BI
 HORS = {'France', 'Sud Est', 'Total'}
 
 def num(v):
@@ -37,6 +38,7 @@ def main(releve, jour, rapport, precedent=None):
                 if '=' in kv:
                     k, v = kv.split('=', 1)
                     if k in CHAMPS: d[CHAMPS[k]] = num(v)
+                    elif k == BUDGET: d['budget'] = num(v)
     equipe = meta.get('equipe', '')
     m = re.search(r'(\d{4}).*?(\d{1,2})\s*\(month', meta.get('periode', ''))
     mois = f"{m.group(1)}-{int(m.group(2)):02d}" if m else ''
@@ -64,10 +66,17 @@ def main(releve, jour, rapport, precedent=None):
     for nom, d in lignes.items():
         if nom in HORS or nom == equipe: continue
         n = re.sub(r'^\(terminated\)\s*', '', nom)
-        comp.append({'nom': n, 'parti': n != nom, **{c: d.get(c, 0) for c in CHAMPS.values()}})
+        x = {'nom': n, 'parti': n != nom, 'budget': d.get('budget', 0), **{c: d.get(c, 0) for c in CHAMPS.values()}}
+        x['pct_inst'] = round(100 * x['inst'] / x['budget']) if x['budget'] else None
+        x['pct_ventes'] = round(100 * x['ventes'] / x['budget']) if x['budget'] else None
+        comp.append(x)
     comp.sort(key=lambda x: (-x['inst'], -x['ventes'], x['nom']))
     rep['compilation'] = comp
     rep['totaux'] = {c: total.get(c, sum(x[c] for x in comp)) for c in CHAMPS.values()}
+    rep['totaux']['budget'] = total.get('budget', sum(x['budget'] for x in comp))
+    b = rep['totaux']['budget']
+    rep['totaux']['pct_inst'] = round(100 * rep['totaux']['inst'] / b) if b else None
+    rep['totaux']['pct_ventes'] = round(100 * rep['totaux']['ventes'] / b) if b else None
 
     # ---- veille (différence avec le passage précédent)
     prev = None
