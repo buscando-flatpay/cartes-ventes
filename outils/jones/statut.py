@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Met à jour le statut d'un agent pour le QG (qg/statut.json, publié chiffré).
+"""Met à jour le statut d'un agent pour le QG privé (document qg/statut de la page Claude « Le QG »).
 
 Usage :
   python3 statut.py statut.json jones ok rapport.json     # mission réussie
@@ -25,7 +25,7 @@ def main(path, agent, etat, arg):
     else:
         a['blocage'] = arg
         prev = st['agents'].get(agent, {})
-        if prev.get('rapport'): a['dernier_rapport'] = prev['rapport']; a['dernier_ok'] = prev.get('fin') if prev.get('etat') == 'ok' else prev.get('dernier_ok')
+        if prev.get('rapport'): a['dernier_rapport'] = prev['rapport']; a['dernier_ok'] = prev.get('fin') if prev.get('etat') != 'bloque' else prev.get('dernier_ok')
     st['agents'][agent] = a
     h = st['historique'].setdefault(agent, {})
     h[jour] = etat

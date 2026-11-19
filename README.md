@@ -10,5 +10,3 @@ Les données (`ventes.enc.json`) sont chiffrées (AES-256-GCM, clé dérivée PB
 - `outils/jones/releve.js` : relevé d'une équipe dans l'onglet du portail (ventes + RDV, adresse et produit lus sur la fiche du RDV, géocodage api-adresse, NAF si SIREN valide). Reprise automatique (« SUITE » / « FINI »), cache dans le navigateur.
 - `outils/jones/fusion.py` : ajoute les nouvelles ventes à `ventes.json` et met à jour les RDV (jours ≥ `rdvcut` remplacés à chaque passage, sans double comptage), écrit un compte rendu JSON.
 
-## QG des agents (`qg/`)
-Page https://buscando-flatpay.github.io/cartes-ventes/qg/ (même mot de passe que la carte). Elle lit `qg/statut.enc.json`, chiffré comme les ventes, que chaque agent met à jour en fin de mission avec `outils/jones/statut.py`.
