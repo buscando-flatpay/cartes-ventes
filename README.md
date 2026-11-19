@@ -24,3 +24,7 @@ Les données (`ventes.enc.json`) sont chiffrées (AES-256-GCM, clé dérivée PB
 ## Ruzard (archives, vendredi 22h + dernier jour du mois 22h)
 - Tâche dans le cloud : lit `qg/statut` dans la base du QG et range des archives (pas besoin du Mac).
 - `outils/ruzard/archive.py semaine|mois|index …` : `archives_semaines/AAAA-Wnn` (chiffres de la semaine par commercial = cumul du vendredi − cumul du vendredi précédent), `archives_mois/AAAA-MM` (compilation provisoire), `archives/index` (liste pour le QG).
+
+## Sylvie (mails, tous les soirs 19h)
+- `outils/sylvie/releve.js` : lecture SEULE d'Outlook web (outlook.cloud.microsoft) dans Chrome — recherches dans la boîte, lecture de la liste des résultats (expéditeur, date, sujet, aperçu, dossier), sans jamais ouvrir un mail.
+- `outils/sylvie/analyse.py candidats|rapport …` : filtre (gens de Flatpay, rétention, support@flatpay.fr, RH), regroupe par fil, repère les fils déjà répondus ; Sylvie décide ensuite ce qui demande une intervention.
