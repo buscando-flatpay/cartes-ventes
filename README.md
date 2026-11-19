@@ -28,3 +28,7 @@ Les données (`ventes.enc.json`) sont chiffrées (AES-256-GCM, clé dérivée PB
 ## Sylvie (mails, tous les soirs 19h)
 - `outils/sylvie/releve.js` : lecture SEULE d'Outlook web (outlook.cloud.microsoft) dans Chrome — recherches dans la boîte, lecture de la liste des résultats (expéditeur, date, sujet, aperçu, dossier), sans jamais ouvrir un mail.
 - `outils/sylvie/analyse.py candidats|rapport …` : filtre (gens de Flatpay, rétention, support@flatpay.fr, RH), regroupe par fil, repère les fils déjà répondus ; Sylvie décide ensuite ce qui demande une intervention.
+
+## Igor (installations en direct, à la demande)
+- `outils/igor/releve.js` : portail, lecture seule. Liste « En attente d'installations » filtrée sur les sales de l'équipe (`salesPersons=…`), fiche de chaque installation (SIREN + terminaux, mémorisés), puis pour chaque client : recherche Client par SIREN → Transactions du jour.
+- `outils/igor/analyse.py releve.txt rapport.json [precedent.json]` : seuil de validation = volume attendu × 12 × 0,5 % ; en direct = recettes depuis le démarrage (à la veille) + ventes terminées du jour ; installations sorties (validées) et nouvelles depuis le dernier point.
