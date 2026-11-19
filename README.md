@@ -14,3 +14,7 @@ Les données (`ventes.enc.json`) sont chiffrées (AES-256-GCM, clé dérivée PB
 ## Sylvain (agent quotidien, 8h45)
 - `outils/sylvain/releve.js` : liste des RDV de l'équipe sur le portail (lecture seule).
 - `outils/sylvain/analyse.py` : RDV par commercial et par jour sur 3 jours (hors reprogrammés et annulés), nombre de META, RDV chez des SIREN déjà clients (d'après la carte).
+
+## Hugues (agent quotidien, 8h00)
+- `outils/hugues/releve.js` : lecture du Power BI « Field Sales Report - TM - FR » (TM Dash et Sales Performance), en lecture seule.
+- `outils/hugues/analyse.py` : compilation du mois par commercial (installations, ventes, OG, POS), chiffres de la veille par différence avec le passage précédent, détection de panne (installations du mois à 0).
