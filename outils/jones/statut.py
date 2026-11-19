@@ -8,10 +8,14 @@ Le fichier statut.json est créé s'il n'existe pas. Historique gardé sur 60 jo
 """
 import json, os, sys
 from datetime import datetime, timedelta
-from zoneinfo import ZoneInfo
 
 def main(path, agent, etat, arg):
-    now = datetime.now(ZoneInfo('Europe/Paris'))
+    try:
+        from zoneinfo import ZoneInfo
+        now = datetime.now(ZoneInfo('Europe/Paris'))
+    except Exception:  # pas de base de fuseaux : heure de Paris approximée (UTC+1, UTC+2 d'avril à octobre)
+        from datetime import timezone
+        u = datetime.now(timezone.utc); now = u + timedelta(hours=2 if 4 <= u.month <= 10 else 1)
     jour = now.strftime('%Y-%m-%d')
     st = json.load(open(path, encoding='utf-8')) if os.path.exists(path) and os.path.getsize(path) else {}
     st.setdefault('v', 1); st.setdefault('agents', {}); st.setdefault('historique', {})
