@@ -6,7 +6,9 @@
 // (SIREN, terminaux ; mémorisés d'un jour à l'autre) ; 3) pour chaque SIREN : recherche Client → ouverture du
 // client → Transactions du jour (somme des ventes terminées, remboursements déduits).
 // Ne clique jamais sur Enregistrer, Créer, un interrupteur ou un champ : seulement des lignes de tableau et « Suivant ».
-// Sortie : I|sales|nom|siren|volume|creation|livraison|statut|recettes|nb_tx_jour|montant_jour|controle|note
+// Sortie : I|sales|nom|siren|volume|creation|livraison|statut|recettes|nb_tx_jour|montant_jour|controle|note|dernier
+// dernier = date (JJ/MM/AAAA) de la dernière vente terminée : aujourd'hui s'il y en a une, sinon on relit les
+// transactions depuis la création de l'installation jusqu'à hier (liste triée de la plus récente à la plus ancienne).
 (async () => {
 const CFG = Object.assign({ sales: '', budget: 40000 }, window.IGOR || {});
 const T0 = Date.now();
@@ -78,6 +80,30 @@ if (manquantes().length) {
   if (manquantes().length) return `SUITE fiches : ${manquantes().length} restante(s) sur ${st.liste.length}`;
 }
 
+// date de la dernière vente terminée avant aujourd'hui (client déjà ouvert) ; '' si aucune, '?' si illisible
+const dernierEncaissement = async (r) => {
+  const m = (r.creation || '').match(/(\d\d)\/(\d\d)\/(\d{4})/);
+  const debut = m ? new Date(+m[3], +m[2] - 1, +m[1], 0, 0, 0) : new Date(now.getFullYear(), now.getMonth() - 3, now.getDate());
+  const fin = new Date(now.getFullYear(), now.getMonth(), now.getDate() - 1, 23, 59, 59);
+  if (debut > fin) return '';
+  const iso = d => d.toISOString().replace(/\.\d+Z$/, '.000Z');
+  await go('/customer'); await sleep(600);   // pour forcer le rechargement de la page des transactions
+  await go(`/transactions?fromDate=${encodeURIComponent(iso(debut))}&toDate=${encodeURIComponent(iso(fin))}`);
+  const pret = await waitFor(() => /fromDate/.test(location.search) && /Total collect/.test(txt()) && (/Aucune donnée/.test(txt()) || document.querySelector('tbody tr')), 15000);
+  if (!pret) return '?';
+  await sleep(1500);
+  if (/Aucune donnée/.test(txt()) && !document.querySelector('tbody tr')) return '';
+  let cur = '';
+  for (const tr of document.querySelectorAll('tbody tr')) {
+    const t = clean(tr.innerText);
+    if (/^\d\d\/\d\d\/\d{4}$/.test(t)) { cur = t; continue; }
+    const c = [...tr.children].map(x => clean(x.innerText)); if (c.length < 5) continue;
+    const statut = c.find(x => /Terminé|Refusé|Annulé|En attente/i.test(x)) || '';
+    if (/Terminé/i.test(statut) && !/Rembours/i.test(c[1] || '') && num(c[c.length - 1]) > 0) return cur || '?';
+  }
+  return '';
+};
+
 // ---- 3. Transactions du jour, client par client
 const aFaire = () => st.liste.filter(r => { const f = fiches[cle(r)]; return f && f.siren && !st.tx[f.siren]; });
 for (const r of aFaire()) {
@@ -111,7 +137,10 @@ for (const r of aFaire()) {
     if (/Rembours/i.test(typ)) somme -= m; else { somme += m; n++; }
   }
   const complet = lignes >= nTete;
-  st.tx[f.siren] = { n: complet ? n : nTete, total: Math.round((complet ? somme : totalTete) * 100) / 100, ok: controle, note: !controle ? 'la page est restée sur le client précédent' : [memes ? '' : 'terminaux différents de la fiche', complet ? '' : 'total du portail (liste incomplète)'].filter(Boolean).join(' ; ') };
+  const nJour = complet ? n : nTete;
+  let dernier = nJour > 0 ? J.split('-').reverse().join('/') : '';
+  if (!dernier && controle) dernier = await dernierEncaissement(r);
+  st.tx[f.siren] = { n: nJour, total: Math.round((complet ? somme : totalTete) * 100) / 100, ok: controle, dernier, note: !controle ? 'la page est restée sur le client précédent' : [memes ? '' : 'terminaux différents de la fiche', complet ? '' : 'total du portail (liste incomplète)'].filter(Boolean).join(' ; ') };
   save();
 }
 // une seconde chance pour les clients en échec (contrôle des terminaux ou client introuvable)
@@ -124,7 +153,7 @@ if (aFaire().length) return `SUITE transactions : ${aFaire().length} client(s) r
 
 // ---- Sortie
 const out = st.liste.map(r => { const f = fiches[cle(r)] || { note: echecs[cle(r)] }; const x = st.tx[f.siren] || {};
-  return ['I', r.sales, r.nom, f.siren || '', r.volume, r.creation, r.livraison, r.statut, r.recettes, x.n ?? '', x.total ?? '', x.ok === false ? 'KO' : 'OK', clean([f.note, x.note].filter(Boolean).join(' ; '))].map(clean).join('|'); });
+  return ['I', r.sales, r.nom, f.siren || '', r.volume, r.creation, r.livraison, r.statut, r.recettes, x.n ?? '', x.total ?? '', x.ok === false ? 'KO' : 'OK', clean([f.note, x.note].filter(Boolean).join(' ; ')), x.dernier ?? ''].map(clean).join('|'); });
 let pre = document.getElementById('igor'); if (!pre) { pre = document.createElement('pre'); pre.id = 'igor'; }
 document.body.innerHTML = ''; document.body.appendChild(pre);
 pre.textContent = ['META|jour|' + J, 'META|heure|' + now.toTimeString().slice(0, 5), ...out].join('\n');

@@ -9,9 +9,20 @@ En direct = « Recettes depuis le démarrage » (arrêtées à la veille) + vent
 (remboursements déduits), lues dans les transactions du client.
 precedent.json : le rapport du passage précédent, pour repérer les installations sorties de la liste
 (validées) et les nouvelles.
+
+Dernier encaissement : colonne « dernier » du relevé (JJ/MM/AAAA). jours_sans = nombre de jours depuis
+(0 = aujourd'hui). Le portail affiche parfois « Recettes depuis le démarrage » à 0 le matin : on reprend
+alors le cumul du passage précédent (note « recettes reconstituées »).
+
+Catégorie (rapport aux commerciaux) :
+  valide   ≥ 100 %            → Félicitations
+  proche   80 à 99,9 %        → Ça avance fort
+  suivre   40 à 79,9 % et encaissement il y a 2 jours ou moins (aujourd'hui, hier, avant-hier)
+  alerte   40 à 79,9 % et pas d'encaissement depuis 3 jours ou plus (ou jamais)
+  checker  < 40 %             → À checker ou installer
 """
 import json, sys
-from datetime import date, datetime
+from datetime import date, datetime, timedelta
 
 def num(v):
     try: return float(str(v).replace(',', '.')) if str(v).strip() not in ('', '-') else 0.0
@@ -25,10 +36,33 @@ def main(releve, sortie, precedent=None):
         elif p[0] == 'I' and len(p) >= 12:
             inst.append(dict(sales=p[1], nom=p[2], siren=p[3], volume=num(p[4]), creation=p[5], livraison=p[6], statut=p[7],
                              recettes=num(p[8]), n_jour=int(num(p[9])), jour=num(p[10]), controle=p[11], note=p[12] if len(p) > 12 else '',
-                             lu=p[9] != ''))
+                             lu=p[9] != '', dernier_brut=p[13] if len(p) > 13 else None))
     J = date.fromisoformat(meta.get('jour', date.today().isoformat()))
+    prev = None
+    if precedent:
+        try: prev = json.load(open(precedent, encoding='utf-8'))
+        except Exception: prev = None
+    avant = {(r['nom'], r['creation']): r for r in (prev or {}).get('installations') or []}
     res = []
     for x in inst:
+        a = avant.get((x['nom'], x['creation']))
+        if a and x['recettes'] <= 0 and (a.get('live') or 0) > 0:
+            x['recettes'] = a['recettes'] if prev.get('jour') == J.isoformat() else a['live']
+            x['note'] = '; '.join(filter(None, [x['note'], "recettes reconstituées (portail à 0 : cumul du point précédent)"]))
+        d = None
+        if x['jour'] > 0: d = J
+        elif x['dernier_brut'] and x['dernier_brut'] != '?':
+            try: d = datetime.strptime(x['dernier_brut'], '%d/%m/%Y').date()
+            except ValueError: d = None
+        if a and a.get('dernier'):   # garder la plus récente des deux
+            try:
+                da = date.fromisoformat(a['dernier'])
+                if d is None or da > d: d = da
+            except ValueError: pass
+        x['dernier'] = d.isoformat() if d else None
+        x['jours_sans'] = (J - d).days if d else None
+        x['dernier_inconnu'] = x['dernier_brut'] == '?' or (x['dernier_brut'] is None and not d)
+        x.pop('dernier_brut')
         seuil = round(x['volume'] * 0.06, 2)
         live = round(x['recettes'] + x['jour'], 2)
         pct = round(100 * live / seuil, 1) if seuil else None
@@ -37,6 +71,11 @@ def main(releve, sortie, precedent=None):
         res.append({**x, 'annuel': round(x['volume'] * 12), 'seuil': seuil, 'live': live, 'pct': pct,
                     'pct_hier': round(100 * x['recettes'] / seuil, 1) if seuil else None,
                     'reste': round(max(seuil - live, 0), 2), 'valide': bool(pct is not None and pct >= 100), 'attente_j': attente})
+        r = res[-1]; q = r['pct'] or 0
+        if q >= 100: r['categorie'] = 'valide'
+        elif q >= 80: r['categorie'] = 'proche'
+        elif q >= 40: r['categorie'] = 'suivre' if (r['jours_sans'] is not None and r['jours_sans'] <= 2) else 'alerte'
+        else: r['categorie'] = 'checker'
     res.sort(key=lambda r: (-(r['pct'] or 0), r['nom']))
     par = {}
     for r in res:
@@ -51,10 +90,8 @@ def main(releve, sortie, precedent=None):
                       'en_cours': sum(1 for r in res if not r['valide'] and r['live'] > 0), 'zero': sum(1 for r in res if r['live'] <= 0),
                       'jour': round(sum(r['jour'] for r in res), 2), 'controle_ko': sum(1 for r in res if r['controle'] == 'KO' or not r['lu'])},
            'sorties': [], 'nouvelles': []}
-    if precedent:
-        try: prev = json.load(open(precedent, encoding='utf-8'))
-        except Exception: prev = None
-        if prev and prev.get('installations') is not None:
+    if prev:
+        if prev.get('installations') is not None:
             k = lambda r: (r['nom'], r['creation'])
             avant = {k(r): r for r in prev['installations']}
             maint = {k(r) for r in res}

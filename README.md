@@ -32,3 +32,18 @@ Les données (`ventes.enc.json`) sont chiffrées (AES-256-GCM, clé dérivée PB
 ## Igor (installations en direct, à la demande)
 - `outils/igor/releve.js` : portail, lecture seule. Liste « En attente d'installations » filtrée sur les sales de l'équipe (`salesPersons=…`), fiche de chaque installation (SIREN + terminaux, mémorisés), puis pour chaque client : recherche Client par SIREN → Transactions du jour.
 - `outils/igor/analyse.py releve.txt rapport.json [precedent.json]` : seuil de validation = volume attendu × 12 × 0,5 % ; en direct = recettes depuis le démarrage (à la veille) + ventes terminées du jour ; installations sorties (validées) et nouvelles depuis le dernier point.
+
+## Sylvie × Igor — point installations aux commerciaux (Slack)
+
+Lancé à la main depuis le QG (panneau d'Igor), après un passage d'Igor. Sylvie lit le dernier rapport d'Igor
+(agents.igor.rapport) et envoie à chaque commercial, dans sa conversation privée Slack avec Quentin, un message :
+🎉 Félicitations (≥ 100 % ou sortie de la liste) · 🚀 Ça avance fort (80–99 %) · 👀 À suivre (40–79 %, encaissement
+il y a 2 jours ou moins) · ⚠️ Attention (40–79 %, pas d'encaissement depuis 3 jours ou plus) · 🔧 À checker ou
+installer (< 40 %).
+
+- `outils/sylvie/igor_slack.py rapport.json dossier [--test] [--seulement "Nom"]` : rédige les messages
+  (messages.json, apercu.txt, envoi_N.js). `--test` : tout part dans l'espace perso de Quentin.
+- `outils/sylvie/slack.js` : envoie UN message dans la conversation ouverte (contrôle du titre, brouillon existant
+  jamais touché, anti-doublon, texte vérifié avant envoi). Réponses ENVOYE / DEJA_ENVOYE / ERREUR.
+- Igor note désormais la date du dernier encaissement (colonne `dernier` du relevé, `jours_sans` et `categorie`
+  dans le rapport).
