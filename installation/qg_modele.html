@@ -1,0 +1,1160 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Le QG · agents de {{PRENOM}}</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bangers&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#070B14;--panel:#111827;--line:#1F2937;--txt:#E5E7EB;--mut:#9CA3AF;--j:#F5A524;--s:#22D3EE;--h:#A78BFA;--y:#F472B6;--rz:#A3E635;--ig:#60A5FA;--ok:#34D399;--warn:#F5A524}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+body{margin:0;background:var(--bg);color:var(--txt);font-family:Inter,system-ui,sans-serif;line-height:1.5}
+a{color:var(--s)}
+h1,h2,h3{font-family:'Space Grotesk',sans-serif;margin:0}
+.wrap{max-width:1360px;margin:0 auto;padding:32px 20px 56px;display:flex;flex-direction:column;gap:22px}
+.top{display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:14px}
+.kick{font-size:13px;letter-spacing:.12em;text-transform:uppercase;color:var(--mut)}
+h1{font-size:44px;line-height:1;color:#F9FAFB}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chip{display:inline-flex;align-items:center;gap:8px;padding:9px 14px;border-radius:999px;background:#131A2A;border:1px solid #232B3D;font-size:14px}
+.dot{width:8px;height:8px;border-radius:50%;background:var(--ok)}
+.map{border-radius:24px;overflow:hidden;border:1px solid #1C2436;background:#0A1220}
+.map svg{display:block;width:100%;height:auto}
+.map g{transform-box:fill-box}
+.zone{opacity:.45;cursor:pointer;transition:opacity .5s}
+.zone.on,.zone.ok,.zone.bloque,.zone.demo{opacity:1}
+.zone.silence{opacity:.7}
+.zone .isl{stroke-opacity:.2;transition:stroke-opacity .5s}
+.zone.on .isl,.zone.demo .isl{stroke-opacity:1}
+.zone.ok .isl{stroke-opacity:.6}
+.zone.bloque .isl{stroke:#F97316;stroke-opacity:1;stroke-dasharray:10 8}
+.q,.env,.alertflag{opacity:0}
+.zone.bloque .alertflag{opacity:1}
+.h-line{stroke-dasharray:220;stroke-dashoffset:0}
+.road{stroke:#253047;stroke-dasharray:10 12;transition:stroke .4s}
+.road.on{stroke:var(--acc)}
+.win{fill:#1E5964}
+.tag{font-family:Inter,sans-serif;font-size:13px;fill:#D1D5DB}
+@media (prefers-reduced-motion:no-preference){
+@keyframes walk{0%,100%{transform:translateX(-22px)}50%{transform:translateX(22px)}}
+@keyframes bob{0%,100%{transform:translateY(0)}50%{transform:translateY(-3px)}}
+@keyframes sweep{0%,100%{transform:rotate(-28deg)}50%{transform:rotate(18deg)}}
+@keyframes pop{0%,100%{opacity:0;transform:translateY(4px)}40%,60%{opacity:1;transform:translateY(-4px)}}
+@keyframes tap{0%,100%{transform:translateY(0)}50%{transform:translateY(-3px)}}
+@keyframes flutter{0%,100%{transform:rotate(0)}50%{transform:rotate(-14deg)}}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.2}}
+@keyframes draw{from{stroke-dashoffset:220}to{stroke-dashoffset:0}}
+@keyframes tilt{0%,100%{transform:rotate(-5deg)}50%{transform:rotate(6deg)}}
+@keyframes fly{0%{opacity:0;transform:translate(0,0) scale(.6)}20%{opacity:1}100%{opacity:0;transform:translate(60px,-58px) scale(1.05)}}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.35}}
+@keyframes flow{to{stroke-dashoffset:-44}}
+@keyframes ring{0%{transform:scale(.8);opacity:.8}100%{transform:scale(1.5);opacity:0}}
+@keyframes lit{0%,100%{fill:#1E5964}50%{fill:#67E8F9}}
+@keyframes wave{0%,100%{transform:translateX(0)}50%{transform:translateX(8px)}}
+.wave{animation:wave 4s ease-in-out infinite}
+.road.on{animation:flow 1s linear infinite}
+:is(.on,.demo) .j-man{animation:walk 2.6s ease-in-out infinite}
+:is(.on,.demo) .j-bob{animation:bob .38s ease-in-out infinite}
+:is(.on,.demo) .j-glass{animation:sweep .9s ease-in-out infinite;transform-origin:0% 100%}
+:is(.on,.demo) .q{animation:pop 1.6s ease-in-out infinite}
+:is(.on,.demo) .q2{animation-delay:.8s}
+:is(.on,.demo) .s-hands{animation:tap .22s ease-in-out infinite}
+:is(.on,.demo) .s-paper{animation:flutter .7s ease-in-out infinite;transform-origin:0% 100%}
+:is(.on,.demo) .s-page{animation:pulse 1.2s ease-in-out infinite}
+:is(.on,.demo) .s-head{animation:bob .9s ease-in-out infinite}
+:is(.on,.demo) .win{animation:lit 1.4s ease-in-out infinite}
+:is(.on,.demo) .w2{animation-delay:.3s}
+:is(.on,.demo) .w3{animation-delay:.6s}
+:is(.on,.demo) .w4{animation-delay:.9s}
+:is(.on,.demo) .h-num{animation:blink 1.1s ease-in-out infinite}
+:is(.on,.demo) .d2{animation-delay:.35s}
+:is(.on,.demo) .d3{animation-delay:.7s}
+:is(.on,.demo) .h-line{animation:draw 2.2s ease-out infinite}
+:is(.on,.demo) .h-head{animation:tilt 1.8s ease-in-out infinite;transform-origin:50% 100%}
+:is(.on,.demo) .h-arm{animation:tilt 1.2s ease-in-out infinite;transform-origin:100% 100%}
+:is(.on,.demo) .h-scope{animation:tilt 2.4s ease-in-out infinite;transform-origin:0% 100%}
+:is(.on,.demo) .env{animation:fly 1.8s ease-out infinite}
+:is(.on,.demo) .e2{animation-delay:.6s}
+:is(.on,.demo) .e3{animation-delay:1.2s}
+:is(.on,.demo) .sy-hands{animation:tap .28s ease-in-out infinite}
+:is(.on,.demo) .flag{animation:pulse .8s ease-in-out infinite}
+:is(.on,.demo) .ig-sweep{animation:bdspin 2s linear infinite;transform-origin:0 0;transform-box:view-box}
+:is(.on,.demo) .ig-dot{animation:pulse .8s ease-in-out infinite}
+:is(.on,.demo) .d2{animation-delay:.3s}
+:is(.on,.demo) .rz-box{animation:shelve 2.4s ease-in-out infinite}
+:is(.on,.demo) .rz-stamp{animation:stamp .7s ease-in-out infinite;transform-origin:50% 0%}
+:is(.on,.demo) .rz-flame{animation:pulse .5s ease-in-out infinite}
+:is(.on,.demo) .rz-body{animation:bob .7s ease-in-out infinite}
+@keyframes shelve{0%{transform:translate(0,0);opacity:0}15%{opacity:1}60%{transform:translate(-62px,-40px);opacity:1}80%,100%{transform:translate(-62px,-40px);opacity:0}}
+@keyframes stamp{0%,100%{transform:translateY(-6px)}50%{transform:translateY(2px)}}
+.bloque .alertflag{animation:pulse 1s ease-in-out infinite}
+.hub.on .ring{animation:ring 1.6s ease-out infinite;transform-origin:50% 50%}
+.live{animation:pulse 1s ease-in-out infinite}
+}
+.grid{display:flex;flex-wrap:wrap;gap:16px}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:20px;padding:22px;min-width:0}
+.card h2{font-size:22px}
+.big{flex:999 1 560px;display:flex;flex-direction:column;gap:16px}
+.side{flex:1 1 320px;display:flex;flex-direction:column;gap:16px}
+.row{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:10px}
+.pill{padding:5px 12px;border-radius:999px;font-size:13px;font-weight:600}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px}
+.stat{background:#0D1320;border:1px solid var(--line);border-radius:14px;padding:14px}
+.stat b{display:block;font-family:'Space Grotesk',sans-serif;font-size:32px;line-height:1.1;color:#F9FAFB}
+.stat span{font-size:13px;color:var(--mut)}
+.list{display:flex;flex-direction:column;gap:6px;margin:0;padding:0;list-style:none}
+.list li{display:flex;justify-content:space-between;gap:10px;padding:8px 12px;border-radius:10px;background:#0D1320;font-size:14px}
+.mut{color:var(--mut);font-size:14px}
+.btn{display:inline-flex;align-items:center;justify-content:center;min-height:46px;padding:0 18px;border-radius:12px;border:2px solid var(--j);background:transparent;color:var(--j);font:600 15px Inter,sans-serif;cursor:pointer;text-decoration:none}
+.btn.fill{background:var(--j);color:#1A1408}
+.note{display:none;padding:12px 14px;border-radius:12px;background:#1A1408;border:1px solid var(--j);color:#FDE68A;font-size:14px}
+.note.show{display:block}
+.alert{padding:14px;border-radius:14px;background:#2A1D0A;border:1px solid var(--warn);color:#FDE68A;font-size:14px}
+.hist{display:grid;grid-template-columns:90px repeat(14,minmax(18px,1fr));gap:5px;align-items:center;font-size:12px;color:var(--mut)}
+.hist i{height:22px;border-radius:6px;background:#1F2937;display:block}
+.hist i.ok{background:var(--ok)} .hist i.bloque{background:transparent;border:2px solid var(--warn)}
+.tbl{width:100%;border-collapse:separate;border-spacing:0 6px;font-size:14px}
+.tbl th{text-align:center;font-weight:500;color:var(--mut);font-size:13px;padding:0 6px}
+.tbl th:first-child{text-align:left}
+.tbl td{background:#0D1320;padding:9px 8px;text-align:center}
+.tbl td:first-child{text-align:left;border-radius:10px 0 0 10px;font-weight:500}
+.tbl td:last-child{border-radius:0 10px 10px 0}
+.seg{display:flex;flex-wrap:wrap;gap:8px}
+.seg button{min-height:40px;padding:0 14px;border-radius:10px;border:1px solid #2A3550;background:#0D1320;color:var(--txt);font:500 14px Inter,sans-serif;cursor:pointer}
+.seg button.sel{background:var(--rz);border-color:var(--rz);color:#13200A;font-weight:600}
+.delta{font-size:12px;font-weight:600;margin-left:6px}
+.delta.up{color:#6EE7B7}.delta.down{color:#FDA4AF}
+.badge{display:inline-block;padding:2px 9px;border-radius:999px;font-size:12px;font-weight:600}
+.n{display:inline-flex;min-width:34px;justify-content:center;padding:3px 8px;border-radius:8px;font-weight:600}
+.n.g{background:#064E3B;color:#6EE7B7}.n.o{background:#431407;color:#FDBA74}.n.y{background:#422006;color:#FDE047}.n.a{background:#3B2A06;color:#FCD34D}.n.r{background:#4C0519;color:#FDA4AF}
+.meta{color:#C4B5FD;font-size:12px}
+.wide{overflow-x:auto}
+.lock{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:20px}
+.lockbox{width:100%;max-width:400px;display:flex;flex-direction:column;gap:14px}
+.lockbox input[type=password]{min-height:48px;border-radius:12px;border:1px solid #374151;background:#0D1320;color:var(--txt);padding:0 14px;font:16px Inter,sans-serif}
+.err{color:#FCA5A5;font-size:14px;min-height:20px}
+label.chk{display:flex;align-items:center;gap:8px;font-size:14px;color:var(--mut)}
+
+/* ===== Habillage BD ===== */
+:root{--cream:#F4EDE0;--ink:#0A0A0A;--bang:'Bangers',Impact,sans-serif;--mut:#C9C2B4;--panel:#111111;--line:#2A2A2A}
+body{background-color:#050505;background-image:radial-gradient(rgba(244,237,224,.07) 1.4px,transparent 1.6px);background-size:14px 14px;color:var(--cream)}
+h1,h2,h3{font-family:var(--bang);font-weight:400;letter-spacing:1px}
+.mut{color:var(--mut)}
+.bd-kick{font-size:14px;letter-spacing:.14em;text-transform:uppercase;color:var(--mut)}
+.bd-h1{font-family:var(--bang);font-size:clamp(52px,8vw,112px);line-height:.9;letter-spacing:3px;color:#FDE047;text-shadow:6px 6px 0 #DC2626,10px 10px 0 var(--ink);margin:0}
+.bd-sub{font-family:var(--bang);font-size:24px;letter-spacing:1px}
+.chip{background:#111;border:3px solid var(--cream);border-radius:0;font-weight:600}
+.monde{position:relative;width:100%;aspect-ratio:1200/760}
+.monde>svg.fond{position:absolute;inset:0;width:100%;height:100%}
+.zone{position:absolute;opacity:1;cursor:pointer;display:flex;flex-direction:column;background:#111;border:4px solid var(--cream);box-shadow:8px 8px 0 var(--acc);transition:transform .3s,box-shadow .3s}
+.zone:hover,.zone:focus-visible{box-shadow:12px 12px 0 var(--acc);outline:none}
+.zone .vue{position:relative;overflow:hidden;border-bottom:4px solid var(--cream)}
+.scene{display:block;width:100%;height:auto;transition:filter .6s}
+.zone .nom{display:flex;align-items:baseline;justify-content:space-between;gap:10px;padding:8px 14px 10px}
+.zone .nom b{font-family:var(--bang);font-weight:400;font-size:30px;letter-spacing:1.5px;color:var(--acc);line-height:1}
+.zone .nom span{font-size:13px;color:var(--mut)}
+.cap{position:absolute;top:10px;left:10px;background:#FDE047;color:var(--ink);border:3px solid var(--ink);padding:2px 10px;font-family:var(--bang);font-size:16px;letter-spacing:1px;box-shadow:3px 3px 0 var(--ink);text-transform:uppercase}
+.zone.ok .cap{background:#6EE7B7}.zone.bloque .cap{background:#FCA5A5}.zone.repos .cap,.zone.silence .cap{background:#D6D3D1}
+.bulle{position:absolute;max-width:55%;background:#fff;color:var(--ink);border:3px solid var(--ink);border-radius:22px;padding:8px 13px;font-family:var(--bang);font-size:18px;line-height:1.1;letter-spacing:.5px;box-shadow:3px 3px 0 var(--ink)}
+.bulle:empty{display:none}
+.mail{background:#0B0B0B;border:3px solid var(--cream);box-shadow:5px 5px 0 var(--y);padding:14px 16px;display:flex;flex-direction:column;gap:6px}
+.mail .tete{display:flex;flex-wrap:wrap;gap:8px;align-items:center;justify-content:space-between}
+.mail b.suj{font-size:16px}
+.badge-c{display:inline-block;padding:1px 8px;border:2px solid var(--ink);font-family:var(--bang);font-size:14px;letter-spacing:1px;color:var(--ink)}
+.c-flatpay{background:#FDE047}.c-retention{background:#FDA4AF}.c-support{background:#67E8F9}.c-rh{background:#C4B5FD}
+.inst{background:#0B0B0B;border:2px solid #2F2F2F;padding:12px 14px;display:grid;grid-template-columns:minmax(0,2fr) minmax(0,3fr) auto;gap:6px 14px;align-items:center}
+.inst .barre{height:14px;background:#1F1F1F;border:2px solid var(--ink);position:relative;overflow:hidden}
+.inst .barre i{position:absolute;inset:0 auto 0 0;display:block}
+.inst .barre em{position:absolute;inset:0 auto 0 0;display:block;background:repeating-linear-gradient(45deg,rgba(255,255,255,.35) 0 4px,transparent 4px 8px)}
+@media (max-width:760px){.inst{grid-template-columns:1fr}}
+.afaire{background:#FDF2F8;color:var(--ink);padding:6px 10px;font-weight:600;font-size:14px;border:2px solid var(--ink)}
+#zone-igor .cap{font-size:12px;padding:1px 7px}
+#zone-igor .bulle{font-size:14px}
+#zone-ruzard .cap{font-size:12px;padding:1px 7px}
+#zone-ruzard .bulle{font-size:14px;top:36px!important;max-width:58%}
+.bulle::after{content:"";position:absolute;bottom:-12px;left:26px;width:18px;height:18px;background:#fff;border-right:3px solid var(--ink);border-bottom:3px solid var(--ink);transform:rotate(45deg)}
+.bulle.d::after{left:auto;right:26px}
+.zone.silence{opacity:1}
+.zone.repos .scene,.zone.silence .scene{filter:grayscale(.7) brightness(.45)}
+.zone.bloque .scene{filter:sepia(.6) hue-rotate(-30deg) saturate(1.6) brightness(.8)}
+.zone.bientot .scene{filter:grayscale(.85) brightness(.6)}
+.zzz,.boom,.speed,.burst,.tampon{position:absolute;display:none;pointer-events:none}
+.zzz{top:36%;right:16%;font-family:var(--bang);font-size:44px;color:var(--cream);letter-spacing:4px;transform:rotate(-10deg)}
+.zone.repos .zzz{display:block}
+.speed{inset:0;width:100%;height:100%}
+.boom{bottom:14%;left:5%;background:#FDE047;color:var(--ink);border:4px solid var(--ink);padding:4px 14px;font-family:var(--bang);font-size:30px;letter-spacing:2px;box-shadow:4px 4px 0 #DC2626;transform:rotate(-8deg)}
+.zone:is(.on,.demo) .speed,.zone:is(.on,.demo) .boom{display:block}
+.burst{top:42%;left:50%;transform:translate(-50%,-50%) rotate(6deg);background:#DC2626;color:#fff;border:4px solid var(--ink);padding:6px 18px;font-family:var(--bang);font-size:34px;letter-spacing:2px;box-shadow:5px 5px 0 var(--ink)}
+.zone.bloque .burst{display:block}
+.tampon{top:46%;left:50%;transform:translate(-50%,-50%) rotate(-12deg);border:4px solid #F472B6;color:#F472B6;background:rgba(10,10,10,.75);padding:4px 18px;font-family:var(--bang);font-size:36px;letter-spacing:3px;display:block}
+.road-base{fill:none;stroke:var(--ink);stroke-width:16;stroke-linecap:round}
+.road{fill:none;stroke:var(--acc);stroke-opacity:.35;stroke-width:7;stroke-dasharray:14 12;stroke-linecap:round;transition:stroke-opacity .4s}
+.road.on{stroke-opacity:1}
+.hub{position:absolute;left:50%;top:55%;width:14%;aspect-ratio:1;transform:translate(-50%,-50%);color:var(--ink)}
+.hub svg{position:absolute;inset:0;width:100%;height:100%}
+.hub .t{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;text-align:center}
+.hub .t b{font-family:var(--bang);font-weight:400;font-size:clamp(28px,3.6vw,52px);line-height:.9;letter-spacing:2px}
+.hub .t span{font-family:var(--bang);font-size:clamp(11px,1.1vw,15px);letter-spacing:1px;max-width:80%}
+.fiches{display:flex;flex-wrap:wrap;gap:22px}
+.fiche{flex:1 1 220px;min-width:0;display:flex;flex-direction:column;gap:12px;background:#111;border:3px solid var(--cream);box-shadow:6px 6px 0 var(--acc);padding:16px 18px;color:var(--cream);text-decoration:none}
+.fiche>span{font-family:var(--bang);font-size:26px;letter-spacing:1px;color:var(--acc)}
+.fiche .duo{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.fiche .duo div{display:flex;flex-direction:column;gap:2px;min-width:0}
+.fiche .duo b{font-family:var(--bang);font-weight:400;font-size:34px;line-height:1;letter-spacing:1px}
+.fiche .duo small{font-size:13px;color:var(--mut)}
+.card{background:#111;border:4px solid var(--cream);border-radius:0;box-shadow:10px 10px 0 var(--acc,#3F3F46)}
+.card h2{font-size:34px;line-height:1}
+.stat{background:#0B0B0B;border:2px solid #2F2F2F;border-radius:0}
+.stat b{font-family:var(--bang);font-weight:400;font-size:40px;letter-spacing:1px}
+.pill{border-radius:0;border:2px solid var(--ink);font-family:var(--bang);font-weight:400;font-size:17px;letter-spacing:1px;text-transform:uppercase;box-shadow:3px 3px 0 var(--ink)}
+.list li,.tbl td{background:#0B0B0B;border-radius:0}
+.tbl td:first-child,.tbl td:last-child{border-radius:0}
+.btn{border-radius:0;font-family:var(--bang);font-weight:400;font-size:19px;letter-spacing:1px;box-shadow:4px 4px 0 var(--ink)}
+.alert{border-radius:0;border-width:3px}
+.seg button{border-radius:0}
+.n{border-radius:0}
+@media (prefers-reduced-motion:no-preference){
+.zone:is(.on,.demo) .scene{animation:bdbob .9s ease-in-out infinite}
+.zone:is(.on,.demo) .boom{animation:bdpop .8s ease-in-out infinite}
+.zone:is(.on,.demo) .speed{animation:bdflash .5s steps(2) infinite}
+.zone.bloque .burst{animation:bdshake .5s ease-in-out infinite}
+.zone.repos .zzz{animation:bdzz 2.4s ease-in-out infinite}
+.road.on{animation:flow 1s linear infinite}
+.hub.on svg{animation:bdspin 6s linear infinite}
+@keyframes bdbob{0%,100%{transform:translateY(0)}50%{transform:translateY(-4px)}}
+@keyframes bdpop{0%,100%{transform:rotate(-8deg) scale(1)}50%{transform:rotate(-5deg) scale(1.12)}}
+@keyframes bdflash{50%{opacity:.35}}
+@keyframes bdshake{0%,100%{transform:translate(-50%,-50%) rotate(6deg)}25%{transform:translate(-52%,-50%) rotate(3deg)}75%{transform:translate(-48%,-50%) rotate(9deg)}}
+@keyframes bdzz{0%,100%{opacity:.4;transform:rotate(-10deg) translateY(0)}50%{opacity:1;transform:rotate(-10deg) translateY(-8px)}}
+@keyframes bdspin{to{transform:rotate(360deg)}}
+}
+@media (max-width:760px){
+.monde{aspect-ratio:auto;display:flex;flex-direction:column;gap:26px}
+.monde>svg.fond{display:none}
+.zone{position:static;width:auto!important;transform:none!important}
+.hub{position:relative;left:auto;top:auto;transform:none;width:160px;align-self:center;order:-1}
+}
+
+.open{position:relative;width:100%;border:4px solid var(--cream);box-shadow:10px 10px 0 #DC2626;overflow:hidden}
+.os{display:block;width:100%;height:auto}
+.os-bulle{font-size:13px;max-width:18%;padding:5px 10px;border-radius:16px;box-shadow:2px 2px 0 var(--ink);pointer-events:none}
+.os-bulle::after{bottom:-10px;left:14px;width:14px;height:14px}
+@media (max-width:760px){.os-bulle{display:none}}
+.poste{cursor:pointer;outline:none}
+.poste:hover .agent,.poste:focus-visible .agent{filter:brightness(1.15)}
+.poste .cerveau,.poste .zz,.poste .alerte,.poste .coche,.poste .dossier{opacity:0;transition:opacity .4s}
+.poste:is(.on,.demo) .cerveau{opacity:1}
+.poste:is(.repos,.silence) .zz{opacity:1}
+.poste.bloque .alerte{opacity:1}
+.poste.ok .coche{opacity:1}
+.poste:is(.repos,.silence) .agent{filter:brightness(.72) saturate(.7)}
+.poste.bloque .agent{filter:sepia(.45) hue-rotate(-30deg) saturate(1.5)}
+.poste:is(.on,.demo) .ecran{opacity:1}
+.agent{transform-box:fill-box;transform-origin:50% 100%}
+.cache{display:none}
+#boite{cursor:pointer;outline:none}
+#boite:hover>path:first-of-type,#boite:focus-visible>path:first-of-type{fill:#C98A4E}
+.voile{position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:60;display:flex;align-items:center;justify-content:center;padding:20px}
+.boitebd{width:100%;background:#111;border:4px solid var(--cream);padding:22px;display:flex;flex-direction:column;gap:14px}
+.choix{display:flex;align-items:center;justify-content:space-between;gap:12px;min-height:56px;padding:10px 16px;background:#0B0B0B;border:3px solid var(--acc);box-shadow:4px 4px 0 var(--acc);color:var(--cream);font:inherit;cursor:pointer;text-align:left}
+.choix:hover,.choix:focus-visible{background:#1A1A1A;outline:none}
+.choix b{font-family:var(--bang);font-weight:400;font-size:24px;letter-spacing:1px;color:var(--acc)}
+.choix .neuf{background:#DC2626;color:#fff;font-family:var(--bang);font-size:15px;letter-spacing:1px;padding:2px 8px;border:2px solid var(--ink)}
+#pop-corps>.card{box-shadow:none;border:0;padding:0;background:none}
+@media (prefers-reduced-motion:no-preference){
+.poste:is(.on,.demo) .agent{animation:osagite .6s ease-in-out infinite}
+.poste:is(.on,.demo) .bras-g{animation:ostape .22s ease-in-out infinite alternate}
+.poste:is(.on,.demo) .bras-d{animation:ostape .22s ease-in-out .11s infinite alternate}
+.poste:is(.on,.demo) .halo{animation:pulse .8s ease-in-out infinite}
+.poste:is(.on,.demo) .vapeur{animation:osvap 1.1s linear infinite}
+.poste:is(.on,.demo) .ecran{animation:osflick .3s steps(2) infinite}
+.poste:is(.on,.demo) .balayage{animation:bdspin 1.6s linear infinite;transform-origin:0 0}
+.poste.bloque .alerte .halo{animation:pulse .6s ease-in-out infinite}
+.poste:is(.repos,.silence) .zz{animation:pulse 2.4s ease-in-out infinite}
+.poste .flamme{animation:pulse 1.4s ease-in-out infinite}
+.marcheur.livre{animation:oslivre 6s ease-in-out 1}
+.marcheur.livre .dossier{animation:osporte 6s linear 1}
+.marcheur.livre .agent{animation:ospas .32s ease-in-out infinite}
+#boite-chute.tombe{display:block;animation:ostombe .8s ease-in forwards}
+#boite-badge.pop{animation:ospop .5s ease-out}
+@keyframes osagite{0%,100%{transform:rotate(0)}30%{transform:rotate(1.6deg)}70%{transform:rotate(-1.6deg)}}
+@keyframes ostape{from{transform:translateY(0)}to{transform:translateY(-6px)}}
+@keyframes osvap{from{transform:translateY(0);opacity:1}to{transform:translateY(-16px);opacity:0}}
+@keyframes osflick{50%{opacity:.35}}
+@keyframes oslivre{0%{transform:translate(0,0)}10%{transform:translate(0,-22px)}46%{transform:translate(var(--dx),calc(var(--dy) - 22px))}56%{transform:translate(var(--dx),calc(var(--dy) - 22px))}92%{transform:translate(0,-22px)}100%{transform:translate(0,0)}}
+@keyframes osporte{0%,9%{opacity:0}11%,49%{opacity:1}51%,100%{opacity:0}}
+@keyframes ospas{50%{transform:translateY(-5px)}}
+@keyframes ostombe{from{transform:translateY(0);opacity:1}to{transform:translateY(96px);opacity:0}}
+@keyframes ospop{0%{transform:scale(1)}50%{transform:scale(1.4)}100%{transform:scale(1)}}
+}
+#zone-jones,#zone-hugues,#zone-sylvain,#zone-ruzard,#bub-jones,#bub-hugues,#bub-sylvain,#bub-ruzard{display:none}
+</style>
+</head>
+<body>
+
+<div id="app" class="wrap">
+  <header class="top">
+    <div style="display:flex;flex-direction:column;gap:8px">
+      <span class="bd-kick">Flatpay · {{REGION}} · {{PRENOM}}</span>
+      <h1 class="bd-h1">LE QG</h1>
+      <span class="bd-sub" id="episode">L’open space des agents de {{PRENOM}}</span>
+    </div>
+    <div class="chips">
+      <span class="chip"><span class="dot live" id="livedot"></span><span id="active">—</span></span>
+      <span class="chip" id="majchip">Chargement…</span>
+    </div>
+  </header>
+  <div class="open"><svg class="os" viewBox="0 0 1200 760" role="img" aria-label="L’open space du QG : six agents à leur bureau et la boîte Les Résultats du QG"><defs><pattern id="os-dots" width="12" height="12" patternUnits="userSpaceOnUse"><circle cx="6" cy="6" r="1.5" fill="#000" opacity=".35"/></pattern>
+<linearGradient id="os-sol" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#2A1F16"/><stop offset="1" stop-color="#16100B"/></linearGradient></defs>
+<rect width="1200" height="290" fill="#10172A"/>
+<g stroke="#0A0A0A" stroke-width="4" stroke-linejoin="round" stroke-linecap="round"><rect x="40" y="40" width="190" height="150" fill="#0B1F3A"/><rect x="970" y="40" width="190" height="150" fill="#0B1F3A"/></g>
+<g fill="#123B57" stroke="#0A0A0A" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"><path d="M52 190 V140 h26 V110 h22 v80 M110 190 V96 h30 v94 M150 190 V130 h24 V100 h18 v90 M982 190 V120 h30 v70 M1022 190 V90 h26 v100 M1058 190 V140 h30 V110 h20 v80 M1118 190 V128 h30 v62"/></g>
+<g fill="#FDE68A"><rect x="118" y="112" width="6" height="7"/><rect x="160" y="140" width="6" height="7"/><rect x="1030" y="104" width="6" height="7"/><rect x="1068" y="150" width="6" height="7"/><rect x="990" y="136" width="6" height="7"/></g>
+<g stroke="#0A0A0A" stroke-width="4" stroke-linejoin="round" stroke-linecap="round" fill="none"><rect x="40" y="40" width="190" height="150"/><path d="M135 40 V190 M40 115 H230"/><rect x="970" y="40" width="190" height="150"/><path d="M1065 40 V190 M970 115 H1160"/></g>
+<rect y="290" width="1200" height="470" fill="url(#os-sol)"/>
+<rect y="290" width="1200" height="470" fill="url(#os-dots)" opacity=".5"/>
+<path d="M0 290 H1200" stroke="#0A0A0A" stroke-width="5"/>
+<g stroke="#3A2C20" stroke-width="2"><path d="M0 420 H1200 M0 560 H1200 M0 700 H1200"/></g>
+<g id="hub" transform="translate(600 92)"><path d="M0 -78 L18 -32 L64 -50 L46 -8 L94 4 L48 24 L70 64 L22 50 L10 92 L-12 54 L-50 82 L-44 34 L-92 30 L-54 -4 L-86 -38 L-36 -36 L-44 -82 L-14 -46 Z" fill="#FDE047" stroke="#0A0A0A" stroke-width="5" stroke-linejoin="round" stroke-linecap="round"/>
+<text x="0" y="16" text-anchor="middle" font-family="Bangers, Impact, sans-serif" font-size="58" fill="#0A0A0A" letter-spacing="2">QG</text>
+<text id="hubtxt" x="0" y="40" text-anchor="middle" font-family="Bangers, Impact, sans-serif" font-size="15" fill="#0A0A0A" letter-spacing="1">—</text></g>
+<g transform="translate(880 210)"><circle r="34" fill="#F4EDE0" stroke="#0A0A0A" stroke-width="4" stroke-linejoin="round" stroke-linecap="round"/><path d="M0 0 V-22 M0 0 L15 8" stroke="#0A0A0A" stroke-width="4" stroke-linejoin="round" stroke-linecap="round"/></g><g id="zone-jones" class="zone poste" data-agent="jones" tabindex="0" role="button" aria-label="Jones : lancer une mission ou voir son compte rendu" transform="translate(190 372)" style="--acc:#F59E0B">
+<ellipse cx="0" cy="104" rx="140" ry="16" fill="#000" opacity=".35"/>
+<rect x="-52" y="-150" width="104" height="140" rx="14" fill="#2A2A2A" stroke="#0A0A0A" stroke-width="3" stroke-linejoin="round" stroke-linecap="round"/>
+<g class="marcheur" style="--dx:782px;--dy:218px"><g class="agent"><g class="jambes"><rect x="-26" y="-8" width="20" height="86" rx="6" fill="#5B4A2E" stroke="#0A0A0A" stroke-width="3" stroke-linejoin="round" stroke-linecap="round"/><rect x="6" y="-8" width="20" height="86" rx="6" fill="#5B4A2E" stroke="#0A0A0A" stroke-width="3" stroke-linejoin="round" stroke-linecap="round"/>
+<path d="M-30 76 h26 v12 h-30 z M4 76 h26 l4 12 h-30 z" fill="#1F1B16" stroke="#0A0A0A" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/></g>
+<path d="M-54 2 L-48 -60 Q-30 -80 0 -82 Q30 -80 48 -60 L54 2 Z" fill="#B59A5E" stroke="#0A0A0A" stroke-width="3" stroke-linejoin="round" stroke-linecap="round"/>
+<path d="M30 -76 Q46 -66 48 -50 L54 2 L34 2 Z" fill="#8C7442"/>
+<path d="M-10 -84 V-70 Q0 -62 10 -70 V-84 Z" fill="#E7AE82" stroke="#0A0A0A" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/><path d="M-14 -82 Q0 -60 14 -82 L12 -72 Q0 -54 -12 -72 Z" fill="#B91C1C" stroke="#0A0A0A" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/>
+<path d="M-30 -62 h18 v20 h-18 z M12 -62 h18 v20 h-18 z" fill="#A08648" stroke="#0A0A0A" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/><path d="M-26 -114 Q-27 -146 0 -148 Q27 -146 26 -114 Q27 -92 12 -84 Q0 -78 -12 -84 Q-27 -92 -26 -114 Z" fill="#E7AE82" stroke="#0A0A0A" stroke-width="3" stroke-linejoin="round" stroke-linecap="round"/>
+<path d="M16 -130 Q28 -112 18 -90 Q12 -84 6 -82 Q20 -100 16 -130 Z" fill="#C98A5E"/>
+<path d="M-26 -114 Q-36 -114 -34 -104 Q-32 -96 -24 -98" fill="#E7AE82" stroke="#0A0A0A" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/><path d="M26 -114 Q36 -114 34 -104 Q32 -96 24 -98" fill="#E7AE82" stroke="#0A0A0A" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/><g class="yeux"><ellipse cx="-9" cy="-114" rx="2.6" ry="3.2" fill="#0A0A0A"/><ellipse cx="9" cy="-114" rx="2.6" ry="3.2" fill="#0A0A0A"/></g><path d="M0 -112 Q-3 -102 1 -100" fill="none" stroke="#0A0A0A" stroke-width="2"/><path d="M-15 -123 L-4 -125 M4 -125 L15 -123" stroke="#0A0A0A" stroke-width="3.5" stroke-linecap="round"/><path class="bouche" d="M-8 -93 Q0 -88 8 -93" fill="none" stroke="#0A0A0A" stroke-width="2.5"/><g fill="#7A5236" opacity=".5"><circle cx="-12" cy="-92" r="1.2"/><circle cx="-4" cy="-87" r="1.2"/><circle cx="6" cy="-87" r="1.2"/><circle cx="13" cy="-92" r="1.2"/></g>
+<path d="M-42 -126 Q0 -140 42 -126 Q40 -118 0 -122 Q-40 -118 -42 -126 Z" fill="#E8DDB5" stroke="#0A0A0A" stroke-width="3" stroke-linejoin="round" stroke-linecap="round"/>
+<path d="M-26 -126 Q-26 -164 0 -166 Q26 -164 26 -126 Q0 -132 -26 -126 Z" fill="#F1E8C6" stroke="#0A0A0A" stroke-width="3" stroke-linejoin="round" stroke-linecap="round"/>
+<path d="M-26 -134 Q0 -140 26 -134 L26 -127 Q0 -132 -26 -127 Z" fill="#7C5A2E" stroke="#0A0A0A" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/><g class="bras-g"><path d="M-46 -62 Q-62 -36 -44 -14" fill="none" stroke="#0A0A0A" stroke-width="22" stroke-linecap="round"/><path d="M-46 -62 Q-62 -36 -44 -14" fill="none" stroke="#B59A5E" stroke-width="16" stroke-linecap="round"/><circle cx="-40" cy="-12" r="9" fill="#E7AE82" stroke="#0A0A0A" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/></g>
+<g class="bras-d"><path d="M46 -62 Q62 -36 44 -14" fill="none" stroke="#0A0A0A" stroke-width="22" stroke-linecap="round"/><path d="M46 -62 Q62 -36 44 -14" fill="none" stroke="#B59A5E" stroke-width="16" stroke-linecap="round"/><circle cx="40" cy="-12" r="9" fill="#E7AE82" stroke="#0A0A0A" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/>
+<g class="dossier"><rect x="30" y="-46" width="44" height="32" rx="3" fill="#FDE68A" stroke="#0A0A0A" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/><path d="M30 -40 h18 l4 -6 h22" fill="none" stroke="#0A0A0A" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/></g></g><g class="cerveau"><circle cx="0" cy="-176" r="26" fill="#EF4444" opacity=".35" class="halo"/>
+<path d="M-16 -176 Q-20 -192 -6 -194 Q0 -202 8 -194 Q22 -194 18 -180 Q26 -168 12 -162 Q6 -156 -2 -162 Q-14 -158 -18 -166 Q-26 -170 -16 -176 Z" fill="#F9A8D4" stroke="#0A0A0A" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/>
+<path d="M-6 -190 q4 6 0 12 M6 -188 q-4 8 2 14" fill="none" stroke="#0A0A0A" stroke-width="1.8"/>
+<g class="vapeur" fill="none" stroke="#F4EDE0" stroke-width="3" stroke-linecap="round"><path d="M-20 -204 q-6 -8 0 -16 q6 -8 0 -16"/><path d="M0 -210 q-6 -8 0 -16 q6 -8 0 -16"/><path d="M20 -204 q-6 -8 0 -16 q6 -8 0 -16"/></g></g><g class="zz"><text x="30" y="-150" font-family="Bangers, Impact, sans-serif" font-size="22" fill="#F4EDE0">z</text><text x="44" y="-168" font-family="Bangers, Impact, sans-serif" font-size="28" fill="#F4EDE0">Z</text></g></g></g>
+<rect x="-128" y="-8" width="256" height="16" rx="3" fill="#6B4630" stroke="#0A0A0A" stroke-width="3" stroke-linejoin="round" stroke-linecap="round"/>
+<rect x="-118" y="8" width="236" height="88" fill="#4A2F1F" stroke="#0A0A0A" stroke-width="3" stroke-linejoin="round" stroke-linecap="round"/>
+<path d="M-48 -56 L48 -56 L44 -4 L-44 -4 Z" fill="#CBD5E1" stroke="#0A0A0A" stroke-width="3" stroke-linejoin="round" stroke-linecap="round"/><circle cx="0" cy="-30" r="6" fill="#94A3B8"/>
+<path class="ecran" d="M-46 -58 L46 -58" stroke="#F59E0B" stroke-width="5" stroke-linecap="round" opacity="0"/>
+<g transform="translate(-100 -30)"><rect x="0" y="0" width="54" height="22" rx="3" fill="#EAD9A8" stroke="#0A0A0A" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round" transform="rotate(-8)"/><circle cx="14" cy="10" r="3" fill="#EF4444"/><circle cx="30" cy="6" r="3" fill="#EF4444"/></g>
+<g transform="translate(86 -24)"><circle r="12" fill="#FDE68A" fill-opacity=".25" stroke="#0A0A0A" stroke-width="3" stroke-linejoin="round" stroke-linecap="round"/><path d="M8 8 L20 20" stroke="#0A0A0A" stroke-width="6" stroke-linejoin="round" stroke-linecap="round"/></g>
+<g class="alerte"><circle cx="-96" cy="-60" r="16" fill="#DC2626" stroke="#0A0A0A" stroke-width="3" stroke-linejoin="round" stroke-linecap="round"/><text x="-96" y="-52" text-anchor="middle" font-family="Bangers, Impact, sans-serif" font-size="24" fill="#FFF">!</text><circle cx="-96" cy="-60" r="28" fill="#DC2626" opacity=".3" class="halo"/></g>
+<rect x="-86" y="22" width="172" height="58" rx="4" fill="#111" stroke="#F59E0B" stroke-width="3"/>
+<text x="0" y="50" text-anchor="middle" font-family="Bangers, Impact, sans-serif" font-size="26" fill="#F59E0B" letter-spacing="1.5">JONES</text>
+<text id="tag-jones" x="0" y="70" text-anchor="middle" font-family="Inter, sans-serif" font-size="11" font-weight="600" fill="#C9C2B4">—</text>
+<g class="coche"><circle cx="100" cy="30" r="13" fill="#34D399" stroke="#0A0A0A" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/><path d="M94 30 l5 5 l9 -10" fill="none" stroke="#062A1E" stroke-width="3" stroke-linecap="round"/></g>
+</g><g id="zone-hugues" class="zone poste" data-agent="hugues" tabindex="0" role="button" aria-label="Hugues : lancer une mission ou voir son compte rendu" transform="translate(470 372)" style="--acc:#A78BFA">
+<ellipse cx="0" cy="104" rx="140" ry="16" fill="#000" opacity=".35"/>
+<rect x="-52" y="-150" width="104" height="140" rx="14" fill="#2A2A2A" stroke="#0A0A0A" stroke-width="3" stroke-linejoin="round" stroke-linecap="round"/>
+<g class="marcheur" style="--dx:502px;--dy:218px"><g class="agent"><g class="jambes"><rect x="-26" y="-8" width="20" height="86" rx="6" fill="#374151" stroke="#0A0A0A" stroke-width="3" stroke-linejoin="round" stroke-linecap="round"/><rect x="6" y="-8" width="20" height="86" rx="6" fill="#374151" stroke="#0A0A0A" stroke-width="3" stroke-linejoin="round" stroke-linecap="round"/>
+<path d="M-30 76 h26 v12 h-30 z M4 76 h26 l4 12 h-30 z" fill="#1F1B16" stroke="#0A0A0A" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/></g>
+<path d="M-54 2 L-48 -60 Q-30 -80 0 -82 Q30 -80 48 -60 L54 2 Z" fill="#F3F4F6" stroke="#0A0A0A" stroke-width="3" stroke-linejoin="round" stroke-linecap="round"/>
+<path d="M30 -76 Q46 -66 48 -50 L54 2 L34 2 Z" fill="#C7CEDB"/>
+<path d="M-10 -84 V-70 Q0 -62 10 -70 V-84 Z" fill="#EDBE98" stroke="#0A0A0A" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/><path d="M-8 -82 L0 -70 L8 -82" fill="#FFF" stroke="#0A0A0A" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/><path d="M-4 -76 L-7 -58 L0 -26 L7 -58 L4 -76 Z" fill="#6D28D9" stroke="#0A0A0A" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/><path d="M-26 -114 Q-27 -146 0 -148 Q27 -146 26 -114 Q27 -92 12 -84 Q0 -78 -12 -84 Q-27 -92 -26 -114 Z" fill="#EDBE98" stroke="#0A0A0A" stroke-width="3" stroke-linejoin="round" stroke-linecap="round"/>
+<path d="M16 -130 Q28 -112 18 -90 Q12 -84 6 -82 Q20 -100 16 -130 Z" fill="#D9A07A"/>
+<path d="M-26 -114 Q-36 -114 -34 -104 Q-32 -96 -24 -98" fill="#EDBE98" stroke="#0A0A0A" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/><path d="M26 -114 Q36 -114 34 -104 Q32 -96 24 -98" fill="#EDBE98" stroke="#0A0A0A" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/><path d="M-28 -116 Q-32 -150 0 -152 Q32 -150 28 -118 Q22 -136 4 -138 Q-16 -138 -24 -124 Z" fill="#4B5563" stroke="#0A0A0A" stroke-width="3" stroke-linejoin="round" stroke-linecap="round"/>
+<g fill="#E0E7FF" fill-opacity=".35" stroke="#0A0A0A" stroke-width="3" stroke-linejoin="round" stroke-linecap="round"><rect x="-20" y="-121" width="16" height="12" rx="3"/><rect x="4" y="-121" width="16" height="12" rx="3"/></g><path d="M-4 -116 H4" stroke="#0A0A0A" stroke-width="2.5"/><g class="yeux"><circle cx="-12" cy="-115" r="2.3" fill="#0A0A0A"/><circle cx="12" cy="-115" r="2.3" fill="#0A0A0A"/></g><path d="M0 -110 Q-3 -101 1 -99" fill="none" stroke="#0A0A0A" stroke-width="2"/><path d="M-15 -123 L-4 -125 M4 -125 L15 -123" stroke="#0A0A0A" stroke-width="3.5" stroke-linecap="round"/><path class="bouche" d="M-8 -93 Q0 -88 8 -93" fill="none" stroke="#0A0A0A" stroke-width="2.5"/><g class="bras-g"><path d="M-46 -62 Q-62 -36 -44 -14" fill="none" stroke="#0A0A0A" stroke-width="22" stroke-linecap="round"/><path d="M-46 -62 Q-62 -36 -44 -14" fill="none" stroke="#F3F4F6" stroke-width="16" stroke-linecap="round"/><circle cx="-40" cy="-12" r="9" fill="#EDBE98" stroke="#0A0A0A" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/></g>
+<g class="bras-d"><path d="M46 -62 Q62 -36 44 -14" fill="none" stroke="#0A0A0A" stroke-width="22" stroke-linecap="round"/><path d="M46 -62 Q62 -36 44 -14" fill="none" stroke="#F3F4F6" stroke-width="16" stroke-linecap="round"/><circle cx="40" cy="-12" r="9" fill="#EDBE98" stroke="#0A0A0A" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/>
+<g class="dossier"><rect x="30" y="-46" width="44" height="32" rx="3" fill="#FDE68A" stroke="#0A0A0A" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/><path d="M30 -40 h18 l4 -6 h22" fill="none" stroke="#0A0A0A" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/></g></g><g class="cerveau"><circle cx="0" cy="-176" r="26" fill="#EF4444" opacity=".35" class="halo"/>
+<path d="M-16 -176 Q-20 -192 -6 -194 Q0 -202 8 -194 Q22 -194 18 -180 Q26 -168 12 -162 Q6 -156 -2 -162 Q-14 -158 -18 -166 Q-26 -170 -16 -176 Z" fill="#F9A8D4" stroke="#0A0A0A" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/>
+<path d="M-6 -190 q4 6 0 12 M6 -188 q-4 8 2 14" fill="none" stroke="#0A0A0A" stroke-width="1.8"/>
+<g class="vapeur" fill="none" stroke="#F4EDE0" stroke-width="3" stroke-linecap="round"><path d="M-20 -204 q-6 -8 0 -16 q6 -8 0 -16"/><path d="M0 -210 q-6 -8 0 -16 q6 -8 0 -16"/><path d="M20 -204 q-6 -8 0 -16 q6 -8 0 -16"/></g></g><g class="zz"><text x="30" y="-150" font-family="Bangers, Impact, sans-serif" font-size="22" fill="#F4EDE0">z</text><text x="44" y="-168" font-family="Bangers, Impact, sans-serif" font-size="28" fill="#F4EDE0">Z</text></g></g></g>
+<rect x="-128" y="-8" width="256" height="16" rx="3" fill="#6B4630" stroke="#0A0A0A" stroke-width="3" stroke-linejoin="round" stroke-linecap="round"/>
+<rect x="-118" y="8" width="236" height="88" fill="#4A2F1F" stroke="#0A0A0A" stroke-width="3" stroke-linejoin="round" stroke-linecap="round"/>
+<path d="M-48 -56 L48 -56 L44 -4 L-44 -4 Z" fill="#CBD5E1" stroke="#0A0A0A" stroke-width="3" stroke-linejoin="round" stroke-linecap="round"/><circle cx="0" cy="-30" r="6" fill="#94A3B8"/>
+<path class="ecran" d="M-46 -58 L46 -58" stroke="#A78BFA" stroke-width="5" stroke-linecap="round" opacity="0"/>
+<g transform="translate(-112 -40)"><rect width="50" height="34" rx="3" fill="#0D1526" stroke="#0A0A0A" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/><rect x="8" y="16" width="7" height="14" fill="#8B5CF6"/><rect x="20" y="9" width="7" height="21" fill="#A78BFA"/><rect x="32" y="4" width="7" height="26" fill="#C4B5FD"/></g>
+<g transform="translate(76 -26)"><rect width="30" height="24" rx="3" fill="#F8FAFC" stroke="#0A0A0A" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/><path d="M30 6 q10 0 8 10 q-2 6 -8 6" fill="none" stroke="#0A0A0A" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/></g>
+<g class="alerte"><circle cx="-96" cy="-60" r="16" fill="#DC2626" stroke="#0A0A0A" stroke-width="3" stroke-linejoin="round" stroke-linecap="round"/><text x="-96" y="-52" text-anchor="middle" font-family="Bangers, Impact, sans-serif" font-size="24" fill="#FFF">!</text><circle cx="-96" cy="-60" r="28" fill="#DC2626" opacity=".3" class="halo"/></g>
+<rect x="-86" y="22" width="172" height="58" rx="4" fill="#111" stroke="#A78BFA" stroke-width="3"/>
+<text x="0" y="50" text-anchor="middle" font-family="Bangers, Impact, sans-serif" font-size="26" fill="#A78BFA" letter-spacing="1.5">HUGUES</text>
+<text id="tag-hugues" x="0" y="70" text-anchor="middle" font-family="Inter, sans-serif" font-size="11" font-weight="600" fill="#C9C2B4">—</text>
+<g class="coche"><circle cx="100" cy="30" r="13" fill="#34D399" stroke="#0A0A0A" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/><path d="M94 30 l5 5 l9 -10" fill="none" stroke="#062A1E" stroke-width="3" stroke-linecap="round"/></g>
+</g><g id="zone-sylvain" class="zone poste" data-agent="sylvain" tabindex="0" role="button" aria-label="Sylvain : lancer une mission ou voir son compte rendu" transform="translate(750 372)" style="--acc:#22D3EE">
+<ellipse cx="0" cy="104" rx="140" ry="16" fill="#000" opacity=".35"/>
+<rect x="-52" y="-150" width="104" height="140" rx="14" fill="#2A2A2A" stroke="#0A0A0A" stroke-width="3" stroke-linejoin="round" stroke-linecap="round"/>
+<g class="marcheur" style="--dx:222px;--dy:218px"><g class="agent"><g class="jambes"><rect x="-26" y="-8" width="20" height="86" rx="6" fill="#1E293B" stroke="#0A0A0A" stroke-width="3" stroke-linejoin="round" stroke-linecap="round"/><rect x="6" y="-8" width="20" height="86" rx="6" fill="#1E293B" stroke="#0A0A0A" stroke-width="3" stroke-linejoin="round" stroke-linecap="round"/>
+<path d="M-30 76 h26 v12 h-30 z M4 76 h26 l4 12 h-30 z" fill="#1F1B16" stroke="#0A0A0A" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/></g>
+<path d="M-54 2 L-48 -60 Q-30 -80 0 -82 Q30 -80 48 -60 L54 2 Z" fill="#BFDBFE" stroke="#0A0A0A" stroke-width="3" stroke-linejoin="round" stroke-linecap="round"/>
+<path d="M30 -76 Q46 -66 48 -50 L54 2 L34 2 Z" fill="#93C5FD"/>
+<path d="M-10 -84 V-70 Q0 -62 10 -70 V-84 Z" fill="#D49A70" stroke="#0A0A0A" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/><path d="M-8 -82 L0 -70 L8 -82" fill="#E0F2FE" stroke="#0A0A0A" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/><path d="M-4 -76 L-8 -56 L0 -26 L8 -56 L4 -76 Z" fill="#1E3A8A" stroke="#0A0A0A" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/><path d="M-26 -114 Q-27 -146 0 -148 Q27 -146 26 -114 Q27 -92 12 -84 Q0 -78 -12 -84 Q-27 -92 -26 -114 Z" fill="#D49A70" stroke="#0A0A0A" stroke-width="3" stroke-linejoin="round" stroke-linecap="round"/>
+<path d="M16 -130 Q28 -112 18 -90 Q12 -84 6 -82 Q20 -100 16 -130 Z" fill="#B97850"/>
+<path d="M-26 -114 Q-36 -114 -34 -104 Q-32 -96 -24 -98" fill="#D49A70" stroke="#0A0A0A" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/><path d="M26 -114 Q36 -114 34 -104 Q32 -96 24 -98" fill="#D49A70" stroke="#0A0A0A" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/><path d="M-28 -114 Q-30 -152 0 -152 Q30 -152 28 -114 Q24 -136 6 -136 Q-14 -136 -22 -126 Z" fill="#1F140E" stroke="#0A0A0A" stroke-width="3" stroke-linejoin="round" stroke-linecap="round"/><g class="yeux"><ellipse cx="-9" cy="-114" rx="2.6" ry="3.2" fill="#0A0A0A"/><ellipse cx="9" cy="-114" rx="2.6" ry="3.2" fill="#0A0A0A"/></g><path d="M0 -112 Q-3 -102 1 -100" fill="none" stroke="#0A0A0A" stroke-width="2"/><path d="M-15 -123 L-4 -125 M4 -125 L15 -123" stroke="#0A0A0A" stroke-width="3.5" stroke-linecap="round"/><path class="bouche" d="M-8 -94 Q0 -86 8 -94 Q0 -90 -8 -94 Z" fill="#7F1D1D" stroke="#0A0A0A" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>
+<path d="M30 -122 Q44 -120 42 -100 L36 -86 Q32 -80 28 -86 L32 -100 Q32 -112 26 -114 Z" fill="#111827" stroke="#0A0A0A" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/><g class="bras-g"><path d="M-46 -62 Q-62 -36 -44 -14" fill="none" stroke="#0A0A0A" stroke-width="22" stroke-linecap="round"/><path d="M-46 -62 Q-62 -36 -44 -14" fill="none" stroke="#BFDBFE" stroke-width="16" stroke-linecap="round"/><circle cx="-40" cy="-12" r="9" fill="#D49A70" stroke="#0A0A0A" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/></g>
+<g class="bras-d"><path d="M46 -62 Q62 -36 44 -14" fill="none" stroke="#0A0A0A" stroke-width="22" stroke-linecap="round"/><path d="M46 -62 Q62 -36 44 -14" fill="none" stroke="#BFDBFE" stroke-width="16" stroke-linecap="round"/><circle cx="40" cy="-12" r="9" fill="#D49A70" stroke="#0A0A0A" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/>
+<g class="dossier"><rect x="30" y="-46" width="44" height="32" rx="3" fill="#FDE68A" stroke="#0A0A0A" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/><path d="M30 -40 h18 l4 -6 h22" fill="none" stroke="#0A0A0A" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/></g></g><g class="cerveau"><circle cx="0" cy="-176" r="26" fill="#EF4444" opacity=".35" class="halo"/>
+<path d="M-16 -176 Q-20 -192 -6 -194 Q0 -202 8 -194 Q22 -194 18 -180 Q26 -168 12 -162 Q6 -156 -2 -162 Q-14 -158 -18 -166 Q-26 -170 -16 -176 Z" fill="#F9A8D4" stroke="#0A0A0A" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/>
+<path d="M-6 -190 q4 6 0 12 M6 -188 q-4 8 2 14" fill="none" stroke="#0A0A0A" stroke-width="1.8"/>
+<g class="vapeur" fill="none" stroke="#F4EDE0" stroke-width="3" stroke-linecap="round"><path d="M-20 -204 q-6 -8 0 -16 q6 -8 0 -16"/><path d="M0 -210 q-6 -8 0 -16 q6 -8 0 -16"/><path d="M20 -204 q-6 -8 0 -16 q6 -8 0 -16"/></g></g><g class="zz"><text x="30" y="-150" font-family="Bangers, Impact, sans-serif" font-size="22" fill="#F4EDE0">z</text><text x="44" y="-168" font-family="Bangers, Impact, sans-serif" font-size="28" fill="#F4EDE0">Z</text></g></g></g>
+<rect x="-128" y="-8" width="256" height="16" rx="3" fill="#6B4630" stroke="#0A0A0A" stroke-width="3" stroke-linejoin="round" stroke-linecap="round"/>
+<rect x="-118" y="8" width="236" height="88" fill="#4A2F1F" stroke="#0A0A0A" stroke-width="3" stroke-linejoin="round" stroke-linecap="round"/>
+<path d="M-48 -56 L48 -56 L44 -4 L-44 -4 Z" fill="#CBD5E1" stroke="#0A0A0A" stroke-width="3" stroke-linejoin="round" stroke-linecap="round"/><circle cx="0" cy="-30" r="6" fill="#94A3B8"/>
+<path class="ecran" d="M-46 -58 L46 -58" stroke="#22D3EE" stroke-width="5" stroke-linecap="round" opacity="0"/>
+<g transform="translate(-114 -28)"><rect width="46" height="24" rx="5" fill="#1F2937" stroke="#0A0A0A" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/><path d="M4 2 q19 -18 38 0" fill="#111827" stroke="#0A0A0A" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/></g>
+<g transform="translate(66 -20) rotate(-6)"><rect width="50" height="16" fill="#FDFBF5" stroke="#0A0A0A" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/><path d="M6 6 h14 M26 6 h14 M6 11 h12" stroke="#0E7490" stroke-width="2"/></g>
+<g class="alerte"><circle cx="-96" cy="-60" r="16" fill="#DC2626" stroke="#0A0A0A" stroke-width="3" stroke-linejoin="round" stroke-linecap="round"/><text x="-96" y="-52" text-anchor="middle" font-family="Bangers, Impact, sans-serif" font-size="24" fill="#FFF">!</text><circle cx="-96" cy="-60" r="28" fill="#DC2626" opacity=".3" class="halo"/></g>
+<rect x="-86" y="22" width="172" height="58" rx="4" fill="#111" stroke="#22D3EE" stroke-width="3"/>
+<text x="0" y="50" text-anchor="middle" font-family="Bangers, Impact, sans-serif" font-size="26" fill="#22D3EE" letter-spacing="1.5">SYLVAIN</text>
+<text id="tag-sylvain" x="0" y="70" text-anchor="middle" font-family="Inter, sans-serif" font-size="11" font-weight="600" fill="#C9C2B4">—</text>
+<g class="coche"><circle cx="100" cy="30" r="13" fill="#34D399" stroke="#0A0A0A" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/><path d="M94 30 l5 5 l9 -10" fill="none" stroke="#062A1E" stroke-width="3" stroke-linecap="round"/></g>
+</g><g id="zone-sylvie" class="zone poste" data-agent="sylvie" tabindex="0" role="button" aria-label="Sylvie : lancer une mission ou voir son compte rendu" transform="translate(190 612)" style="--acc:#F472B6">
+<ellipse cx="0" cy="104" rx="140" ry="16" fill="#000" opacity=".35"/>
+<rect x="-52" y="-150" width="104" height="140" rx="14" fill="#2A2A2A" stroke="#0A0A0A" stroke-width="3" stroke-linejoin="round" stroke-linecap="round"/>
+<g class="marcheur" style="--dx:782px;--dy:-22px"><g class="agent"><g class="jambes"><rect x="-26" y="-8" width="20" height="86" rx="6" fill="#1F2937" stroke="#0A0A0A" stroke-width="3" stroke-linejoin="round" stroke-linecap="round"/><rect x="6" y="-8" width="20" height="86" rx="6" fill="#1F2937" stroke="#0A0A0A" stroke-width="3" stroke-linejoin="round" stroke-linecap="round"/>
+<path d="M-30 76 h26 v12 h-30 z M4 76 h26 l4 12 h-30 z" fill="#1F1B16" stroke="#0A0A0A" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/></g>
+<path d="M-54 2 L-48 -60 Q-30 -80 0 -82 Q30 -80 48 -60 L54 2 Z" fill="#DB2777" stroke="#0A0A0A" stroke-width="3" stroke-linejoin="round" stroke-linecap="round"/>
+<path d="M30 -76 Q46 -66 48 -50 L54 2 L34 2 Z" fill="#9D174D"/>
+<path d="M-10 -84 V-70 Q0 -62 10 -70 V-84 Z" fill="#C98463" stroke="#0A0A0A" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/><path d="M-12 -82 Q0 -66 12 -82" fill="#FBCFE8" stroke="#0A0A0A" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/><path d="M-26 -114 Q-27 -146 0 -148 Q27 -146 26 -114 Q27 -92 12 -84 Q0 -78 -12 -84 Q-27 -92 -26 -114 Z" fill="#C98463" stroke="#0A0A0A" stroke-width="3" stroke-linejoin="round" stroke-linecap="round"/>
+<path d="M16 -130 Q28 -112 18 -90 Q12 -84 6 -82 Q20 -100 16 -130 Z" fill="#B46A4A"/>
+<path d="M-26 -114 Q-36 -114 -34 -104 Q-32 -96 -24 -98" fill="#C98463" stroke="#0A0A0A" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/><path d="M26 -114 Q36 -114 34 -104 Q32 -96 24 -98" fill="#C98463" stroke="#0A0A0A" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/><path d="M-30 -110 Q-36 -152 0 -154 Q36 -152 30 -110 Q26 -134 8 -138 Q-14 -138 -22 -124 Q-26 -110 -22 -96 Q-32 -100 -30 -110 Z" fill="#3B1D10" stroke="#0A0A0A" stroke-width="3" stroke-linejoin="round" stroke-linecap="round"/>
+<circle cx="0" cy="-160" r="13" fill="#3B1D10" stroke="#0A0A0A" stroke-width="3" stroke-linejoin="round" stroke-linecap="round"/><g class="yeux"><path d="M-14 -114 Q-9 -118 -4 -114 M4 -114 Q9 -118 14 -114" fill="none" stroke="#0A0A0A" stroke-width="3" stroke-linecap="round"/></g><path d="M0 -110 Q-3 -101 1 -99" fill="none" stroke="#0A0A0A" stroke-width="2"/><path d="M-15 -123 L-4 -125 M4 -125 L15 -123" stroke="#0A0A0A" stroke-width="3.5" stroke-linecap="round"/><path class="bouche" d="M-8 -93 Q0 -88 8 -93" fill="none" stroke="#0A0A0A" stroke-width="2.5"/><path d="M-30 -112 Q-32 -150 0 -150 Q32 -150 30 -112" fill="none" stroke="#111827" stroke-width="4.5"/>
+<rect x="-36" y="-118" width="10" height="18" rx="4" fill="#111827" stroke="#0A0A0A" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/><path d="M-32 -102 Q-28 -88 -12 -88" fill="none" stroke="#111827" stroke-width="3"/><circle cx="-11" cy="-88" r="3.5" fill="#111827"/><g class="bras-g"><path d="M-46 -62 Q-62 -36 -44 -14" fill="none" stroke="#0A0A0A" stroke-width="22" stroke-linecap="round"/><path d="M-46 -62 Q-62 -36 -44 -14" fill="none" stroke="#DB2777" stroke-width="16" stroke-linecap="round"/><circle cx="-40" cy="-12" r="9" fill="#C98463" stroke="#0A0A0A" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/></g>
+<g class="bras-d"><path d="M46 -62 Q62 -36 44 -14" fill="none" stroke="#0A0A0A" stroke-width="22" stroke-linecap="round"/><path d="M46 -62 Q62 -36 44 -14" fill="none" stroke="#DB2777" stroke-width="16" stroke-linecap="round"/><circle cx="40" cy="-12" r="9" fill="#C98463" stroke="#0A0A0A" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/>
+<g class="dossier"><rect x="30" y="-46" width="44" height="32" rx="3" fill="#FDE68A" stroke="#0A0A0A" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/><path d="M30 -40 h18 l4 -6 h22" fill="none" stroke="#0A0A0A" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/></g></g><g class="cerveau"><circle cx="0" cy="-176" r="26" fill="#EF4444" opacity=".35" class="halo"/>
+<path d="M-16 -176 Q-20 -192 -6 -194 Q0 -202 8 -194 Q22 -194 18 -180 Q26 -168 12 -162 Q6 -156 -2 -162 Q-14 -158 -18 -166 Q-26 -170 -16 -176 Z" fill="#F9A8D4" stroke="#0A0A0A" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/>
+<path d="M-6 -190 q4 6 0 12 M6 -188 q-4 8 2 14" fill="none" stroke="#0A0A0A" stroke-width="1.8"/>
+<g class="vapeur" fill="none" stroke="#F4EDE0" stroke-width="3" stroke-linecap="round"><path d="M-20 -204 q-6 -8 0 -16 q6 -8 0 -16"/><path d="M0 -210 q-6 -8 0 -16 q6 -8 0 -16"/><path d="M20 -204 q-6 -8 0 -16 q6 -8 0 -16"/></g></g><g class="zz"><text x="30" y="-150" font-family="Bangers, Impact, sans-serif" font-size="22" fill="#F4EDE0">z</text><text x="44" y="-168" font-family="Bangers, Impact, sans-serif" font-size="28" fill="#F4EDE0">Z</text></g></g></g>
+<rect x="-128" y="-8" width="256" height="16" rx="3" fill="#6B4630" stroke="#0A0A0A" stroke-width="3" stroke-linejoin="round" stroke-linecap="round"/>
+<rect x="-118" y="8" width="236" height="88" fill="#4A2F1F" stroke="#0A0A0A" stroke-width="3" stroke-linejoin="round" stroke-linecap="round"/>
+<path d="M-48 -56 L48 -56 L44 -4 L-44 -4 Z" fill="#CBD5E1" stroke="#0A0A0A" stroke-width="3" stroke-linejoin="round" stroke-linecap="round"/><circle cx="0" cy="-30" r="6" fill="#94A3B8"/>
+<path class="ecran" d="M-46 -58 L46 -58" stroke="#F472B6" stroke-width="5" stroke-linecap="round" opacity="0"/>
+<g transform="translate(-112 -26)"><rect width="40" height="20" fill="#FDF2F8" stroke="#0A0A0A" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/><path d="M0 2 L20 12 L40 2" fill="none" stroke="#0A0A0A" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/><rect x="6" y="-12" width="40" height="20" fill="#FBCFE8" stroke="#0A0A0A" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/><path d="M6 -10 L26 0 L46 -10" fill="none" stroke="#0A0A0A" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/></g>
+<g transform="translate(78 -30)"><rect width="30" height="26" rx="3" fill="#F472B6" stroke="#0A0A0A" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/><path d="M6 8 h18 M6 15 h12" stroke="#FFF" stroke-width="2"/></g>
+<g class="alerte"><circle cx="-96" cy="-60" r="16" fill="#DC2626" stroke="#0A0A0A" stroke-width="3" stroke-linejoin="round" stroke-linecap="round"/><text x="-96" y="-52" text-anchor="middle" font-family="Bangers, Impact, sans-serif" font-size="24" fill="#FFF">!</text><circle cx="-96" cy="-60" r="28" fill="#DC2626" opacity=".3" class="halo"/></g>
+<rect x="-86" y="22" width="172" height="58" rx="4" fill="#111" stroke="#F472B6" stroke-width="3"/>
+<text x="0" y="50" text-anchor="middle" font-family="Bangers, Impact, sans-serif" font-size="26" fill="#F472B6" letter-spacing="1.5">SYLVIE</text>
+<text id="tag-sylvie" x="0" y="70" text-anchor="middle" font-family="Inter, sans-serif" font-size="11" font-weight="600" fill="#C9C2B4">—</text>
+<g class="coche"><circle cx="100" cy="30" r="13" fill="#34D399" stroke="#0A0A0A" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/><path d="M94 30 l5 5 l9 -10" fill="none" stroke="#062A1E" stroke-width="3" stroke-linecap="round"/></g>
+</g><g id="zone-igor" class="zone poste" data-agent="igor" tabindex="0" role="button" aria-label="Igor : lancer une mission ou voir son compte rendu" transform="translate(470 612)" style="--acc:#60A5FA">
+<ellipse cx="0" cy="104" rx="140" ry="16" fill="#000" opacity=".35"/>
+<rect x="-52" y="-150" width="104" height="140" rx="14" fill="#2A2A2A" stroke="#0A0A0A" stroke-width="3" stroke-linejoin="round" stroke-linecap="round"/>
+<g class="marcheur" style="--dx:502px;--dy:-22px"><g class="agent"><g class="jambes"><rect x="-26" y="-8" width="20" height="86" rx="6" fill="#111827" stroke="#0A0A0A" stroke-width="3" stroke-linejoin="round" stroke-linecap="round"/><rect x="6" y="-8" width="20" height="86" rx="6" fill="#111827" stroke="#0A0A0A" stroke-width="3" stroke-linejoin="round" stroke-linecap="round"/>
+<path d="M-30 76 h26 v12 h-30 z M4 76 h26 l4 12 h-30 z" fill="#1F1B16" stroke="#0A0A0A" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/></g>
+<path d="M-54 2 L-48 -60 Q-30 -80 0 -82 Q30 -80 48 -60 L54 2 Z" fill="#111827" stroke="#0A0A0A" stroke-width="3" stroke-linejoin="round" stroke-linecap="round"/>
+<path d="M30 -76 Q46 -66 48 -50 L54 2 L34 2 Z" fill="#0A0F1A"/>
+<path d="M-10 -84 V-70 Q0 -62 10 -70 V-84 Z" fill="#E1A97E" stroke="#0A0A0A" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/><path d="M-10 -82 L0 -64 L10 -82 Z" fill="#F8FAFC" stroke="#0A0A0A" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/><path d="M-4 -76 L-6 -58 L0 -30 L6 -58 L4 -76 Z" fill="#1E40AF" stroke="#0A0A0A" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/>
+<path d="M-18 -82 L-4 -60 L-2 -78 Z M18 -82 L4 -60 L2 -78 Z" fill="#1F2937" stroke="#0A0A0A" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/><path d="M-26 -114 Q-27 -146 0 -148 Q27 -146 26 -114 Q27 -92 12 -84 Q0 -78 -12 -84 Q-27 -92 -26 -114 Z" fill="#E1A97E" stroke="#0A0A0A" stroke-width="3" stroke-linejoin="round" stroke-linecap="round"/>
+<path d="M16 -130 Q28 -112 18 -90 Q12 -84 6 -82 Q20 -100 16 -130 Z" fill="#C98A64"/>
+<path d="M-26 -114 Q-36 -114 -34 -104 Q-32 -96 -24 -98" fill="#E1A97E" stroke="#0A0A0A" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/><path d="M26 -114 Q36 -114 34 -104 Q32 -96 24 -98" fill="#E1A97E" stroke="#0A0A0A" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/><path d="M-28 -116 Q-30 -152 0 -152 Q30 -152 28 -118 Q22 -138 2 -138 Q-18 -138 -24 -126 Z" fill="#1C1917" stroke="#0A0A0A" stroke-width="3" stroke-linejoin="round" stroke-linecap="round"/>
+<path d="M-22 -120 H22 L21 -112 Q16 -104 6 -108 L3 -114 H-3 L-6 -108 Q-16 -104 -21 -112 Z" fill="#0A0A0A" stroke="#0A0A0A" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>
+<path d="M-17 -118 h5" stroke="#94A3B8" stroke-width="1.5"/><path d="M5 -118 h5" stroke="#94A3B8" stroke-width="1.5"/>
+<path d="M0 -106 Q-3 -99 1 -98" fill="none" stroke="#0A0A0A" stroke-width="2"/><path class="bouche" d="M-8 -93 Q0 -88 8 -93" fill="none" stroke="#0A0A0A" stroke-width="2.5"/><circle cx="-31" cy="-104" r="3" fill="#0A0A0A"/><path d="M-31 -101 Q-36 -90 -30 -80" fill="none" stroke="#94A3B8" stroke-width="2" stroke-dasharray="3 3"/><g class="bras-g"><path d="M-46 -62 Q-62 -36 -44 -14" fill="none" stroke="#0A0A0A" stroke-width="22" stroke-linecap="round"/><path d="M-46 -62 Q-62 -36 -44 -14" fill="none" stroke="#111827" stroke-width="16" stroke-linecap="round"/><circle cx="-40" cy="-12" r="9" fill="#E1A97E" stroke="#0A0A0A" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/></g>
+<g class="bras-d"><path d="M46 -62 Q62 -36 44 -14" fill="none" stroke="#0A0A0A" stroke-width="22" stroke-linecap="round"/><path d="M46 -62 Q62 -36 44 -14" fill="none" stroke="#111827" stroke-width="16" stroke-linecap="round"/><circle cx="40" cy="-12" r="9" fill="#E1A97E" stroke="#0A0A0A" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/>
+<g class="dossier"><rect x="30" y="-46" width="44" height="32" rx="3" fill="#FDE68A" stroke="#0A0A0A" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/><path d="M30 -40 h18 l4 -6 h22" fill="none" stroke="#0A0A0A" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/></g></g><g class="cerveau"><circle cx="0" cy="-176" r="26" fill="#EF4444" opacity=".35" class="halo"/>
+<path d="M-16 -176 Q-20 -192 -6 -194 Q0 -202 8 -194 Q22 -194 18 -180 Q26 -168 12 -162 Q6 -156 -2 -162 Q-14 -158 -18 -166 Q-26 -170 -16 -176 Z" fill="#F9A8D4" stroke="#0A0A0A" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/>
+<path d="M-6 -190 q4 6 0 12 M6 -188 q-4 8 2 14" fill="none" stroke="#0A0A0A" stroke-width="1.8"/>
+<g class="vapeur" fill="none" stroke="#F4EDE0" stroke-width="3" stroke-linecap="round"><path d="M-20 -204 q-6 -8 0 -16 q6 -8 0 -16"/><path d="M0 -210 q-6 -8 0 -16 q6 -8 0 -16"/><path d="M20 -204 q-6 -8 0 -16 q6 -8 0 -16"/></g></g><g class="zz"><text x="30" y="-150" font-family="Bangers, Impact, sans-serif" font-size="22" fill="#F4EDE0">z</text><text x="44" y="-168" font-family="Bangers, Impact, sans-serif" font-size="28" fill="#F4EDE0">Z</text></g></g></g>
+<rect x="-128" y="-8" width="256" height="16" rx="3" fill="#6B4630" stroke="#0A0A0A" stroke-width="3" stroke-linejoin="round" stroke-linecap="round"/>
+<rect x="-118" y="8" width="236" height="88" fill="#4A2F1F" stroke="#0A0A0A" stroke-width="3" stroke-linejoin="round" stroke-linecap="round"/>
+<path d="M-48 -56 L48 -56 L44 -4 L-44 -4 Z" fill="#CBD5E1" stroke="#0A0A0A" stroke-width="3" stroke-linejoin="round" stroke-linecap="round"/><circle cx="0" cy="-30" r="6" fill="#94A3B8"/>
+<path class="ecran" d="M-46 -58 L46 -58" stroke="#60A5FA" stroke-width="5" stroke-linecap="round" opacity="0"/>
+<g transform="translate(-92 -26)"><circle r="20" fill="#06101F" stroke="#0A0A0A" stroke-width="3" stroke-linejoin="round" stroke-linecap="round"/><g fill="none" stroke="#60A5FA" stroke-opacity=".6" stroke-width="1.5"><circle r="12"/><path d="M-20 0 H20 M0 -20 V20"/></g><g class="balayage"><path d="M0 0 L0 -18 A18 18 0 0 1 13 -13 Z" fill="#60A5FA" fill-opacity=".5"/></g><circle cx="-8" cy="-6" r="2.5" fill="#6EE7B7"/><circle cx="9" cy="6" r="2.5" fill="#FDBA74"/></g>
+<g transform="translate(78 -22)"><rect width="34" height="18" rx="3" fill="#111827" stroke="#0A0A0A" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/><path d="M4 9 h26" stroke="#60A5FA" stroke-width="2"/></g>
+<g class="alerte"><circle cx="-96" cy="-60" r="16" fill="#DC2626" stroke="#0A0A0A" stroke-width="3" stroke-linejoin="round" stroke-linecap="round"/><text x="-96" y="-52" text-anchor="middle" font-family="Bangers, Impact, sans-serif" font-size="24" fill="#FFF">!</text><circle cx="-96" cy="-60" r="28" fill="#DC2626" opacity=".3" class="halo"/></g>
+<rect x="-86" y="22" width="172" height="58" rx="4" fill="#111" stroke="#60A5FA" stroke-width="3"/>
+<text x="0" y="50" text-anchor="middle" font-family="Bangers, Impact, sans-serif" font-size="26" fill="#60A5FA" letter-spacing="1.5">IGOR</text>
+<text id="tag-igor" x="0" y="70" text-anchor="middle" font-family="Inter, sans-serif" font-size="11" font-weight="600" fill="#C9C2B4">—</text>
+<g class="coche"><circle cx="100" cy="30" r="13" fill="#34D399" stroke="#0A0A0A" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/><path d="M94 30 l5 5 l9 -10" fill="none" stroke="#062A1E" stroke-width="3" stroke-linecap="round"/></g>
+</g><g id="zone-ruzard" class="zone poste" data-agent="ruzard" tabindex="0" role="button" aria-label="Ruzard : lancer une mission ou voir son compte rendu" transform="translate(750 612)" style="--acc:#A3E635">
+<ellipse cx="0" cy="104" rx="140" ry="16" fill="#000" opacity=".35"/>
+<rect x="-52" y="-150" width="104" height="140" rx="14" fill="#2A2A2A" stroke="#0A0A0A" stroke-width="3" stroke-linejoin="round" stroke-linecap="round"/>
+<g class="marcheur" style="--dx:222px;--dy:-22px"><g class="agent"><g class="jambes"><rect x="-26" y="-8" width="20" height="86" rx="6" fill="#3F5A22" stroke="#0A0A0A" stroke-width="3" stroke-linejoin="round" stroke-linecap="round"/><rect x="6" y="-8" width="20" height="86" rx="6" fill="#3F5A22" stroke="#0A0A0A" stroke-width="3" stroke-linejoin="round" stroke-linecap="round"/>
+<path d="M-30 76 h26 v12 h-30 z M4 76 h26 l4 12 h-30 z" fill="#1F1B16" stroke="#0A0A0A" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/></g>
+<path d="M-54 2 L-48 -60 Q-30 -80 0 -82 Q30 -80 48 -60 L54 2 Z" fill="#3F5A22" stroke="#0A0A0A" stroke-width="3" stroke-linejoin="round" stroke-linecap="round"/>
+<path d="M30 -76 Q46 -66 48 -50 L54 2 L34 2 Z" fill="#2D4218"/>
+<path d="M-10 -84 V-70 Q0 -62 10 -70 V-84 Z" fill="#E8B892" stroke="#0A0A0A" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/><path d="M-26 -114 Q-27 -146 0 -148 Q27 -146 26 -114 Q27 -92 12 -84 Q0 -78 -12 -84 Q-27 -92 -26 -114 Z" fill="#E8B892" stroke="#0A0A0A" stroke-width="3" stroke-linejoin="round" stroke-linecap="round"/>
+<path d="M16 -130 Q28 -112 18 -90 Q12 -84 6 -82 Q20 -100 16 -130 Z" fill="#D49A70"/>
+<path d="M-26 -114 Q-36 -114 -34 -104 Q-32 -96 -24 -98" fill="#E8B892" stroke="#0A0A0A" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/><path d="M26 -114 Q36 -114 34 -104 Q32 -96 24 -98" fill="#E8B892" stroke="#0A0A0A" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/><path d="M-34 -96 Q-40 -150 0 -164 Q40 -150 34 -96 Q26 -130 0 -134 Q-26 -130 -34 -96 Z" fill="#4C6B28" stroke="#0A0A0A" stroke-width="3" stroke-linejoin="round" stroke-linecap="round"/>
+<path d="M-22 -104 Q-20 -76 -8 -50 Q0 -36 2 -30 Q6 -38 12 -50 Q22 -76 22 -104 Q12 -92 0 -92 Q-12 -92 -22 -104 Z" fill="#F8FAFC" stroke="#0A0A0A" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/>
+<path d="M-14 -102 Q-6 -108 0 -102 Q6 -108 14 -102 Q6 -96 0 -100 Q-6 -96 -14 -102 Z" fill="#F8FAFC" stroke="#0A0A0A" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>
+<g fill="#FEF9C3" fill-opacity=".4" stroke="#0A0A0A" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"><circle cx="-10" cy="-116" r="7"/><circle cx="10" cy="-116" r="7"/></g><path d="M-3 -116 H3" stroke="#0A0A0A" stroke-width="2.5"/>
+<g class="yeux"><circle cx="-10" cy="-116" r="1.8" fill="#0A0A0A"/><circle cx="10" cy="-116" r="1.8" fill="#0A0A0A"/></g>
+<path d="M-18 -126 Q-10 -130 -4 -126 M4 -126 Q10 -130 18 -126" fill="none" stroke="#F8FAFC" stroke-width="4" stroke-linecap="round"/><g class="bras-g"><path d="M-46 -62 Q-62 -36 -44 -14" fill="none" stroke="#0A0A0A" stroke-width="22" stroke-linecap="round"/><path d="M-46 -62 Q-62 -36 -44 -14" fill="none" stroke="#3F5A22" stroke-width="16" stroke-linecap="round"/><circle cx="-40" cy="-12" r="9" fill="#E8B892" stroke="#0A0A0A" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/></g>
+<g class="bras-d"><path d="M46 -62 Q62 -36 44 -14" fill="none" stroke="#0A0A0A" stroke-width="22" stroke-linecap="round"/><path d="M46 -62 Q62 -36 44 -14" fill="none" stroke="#3F5A22" stroke-width="16" stroke-linecap="round"/><circle cx="40" cy="-12" r="9" fill="#E8B892" stroke="#0A0A0A" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/>
+<g class="dossier"><rect x="30" y="-46" width="44" height="32" rx="3" fill="#FDE68A" stroke="#0A0A0A" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/><path d="M30 -40 h18 l4 -6 h22" fill="none" stroke="#0A0A0A" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/></g></g><g class="cerveau"><circle cx="0" cy="-176" r="26" fill="#EF4444" opacity=".35" class="halo"/>
+<path d="M-16 -176 Q-20 -192 -6 -194 Q0 -202 8 -194 Q22 -194 18 -180 Q26 -168 12 -162 Q6 -156 -2 -162 Q-14 -158 -18 -166 Q-26 -170 -16 -176 Z" fill="#F9A8D4" stroke="#0A0A0A" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/>
+<path d="M-6 -190 q4 6 0 12 M6 -188 q-4 8 2 14" fill="none" stroke="#0A0A0A" stroke-width="1.8"/>
+<g class="vapeur" fill="none" stroke="#F4EDE0" stroke-width="3" stroke-linecap="round"><path d="M-20 -204 q-6 -8 0 -16 q6 -8 0 -16"/><path d="M0 -210 q-6 -8 0 -16 q6 -8 0 -16"/><path d="M20 -204 q-6 -8 0 -16 q6 -8 0 -16"/></g></g><g class="zz"><text x="30" y="-150" font-family="Bangers, Impact, sans-serif" font-size="22" fill="#F4EDE0">z</text><text x="44" y="-168" font-family="Bangers, Impact, sans-serif" font-size="28" fill="#F4EDE0">Z</text></g></g></g>
+<rect x="-128" y="-8" width="256" height="16" rx="3" fill="#6B4630" stroke="#0A0A0A" stroke-width="3" stroke-linejoin="round" stroke-linecap="round"/>
+<rect x="-118" y="8" width="236" height="88" fill="#4A2F1F" stroke="#0A0A0A" stroke-width="3" stroke-linejoin="round" stroke-linecap="round"/>
+<path d="M-48 -56 L48 -56 L44 -4 L-44 -4 Z" fill="#CBD5E1" stroke="#0A0A0A" stroke-width="3" stroke-linejoin="round" stroke-linecap="round"/><circle cx="0" cy="-30" r="6" fill="#94A3B8"/>
+<path class="ecran" d="M-46 -58 L46 -58" stroke="#A3E635" stroke-width="5" stroke-linecap="round" opacity="0"/>
+<g transform="translate(-118 -44)"><rect width="34" height="26" fill="#C9B98A" stroke="#0A0A0A" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/><rect x="4" y="-20" width="30" height="20" fill="#A99A6C" stroke="#0A0A0A" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/><text x="6" y="17" font-family="Bangers, Impact, sans-serif" font-size="11" fill="#2A2010">S47</text></g>
+<g transform="translate(88 -48)"><path d="M-10 0 h20 l-3 30 h-14 z" fill="#3F3A2E" stroke="#0A0A0A" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/><rect x="-6" y="5" width="12" height="18" fill="#FDE047" class="flamme"/></g>
+<g class="alerte"><circle cx="-96" cy="-60" r="16" fill="#DC2626" stroke="#0A0A0A" stroke-width="3" stroke-linejoin="round" stroke-linecap="round"/><text x="-96" y="-52" text-anchor="middle" font-family="Bangers, Impact, sans-serif" font-size="24" fill="#FFF">!</text><circle cx="-96" cy="-60" r="28" fill="#DC2626" opacity=".3" class="halo"/></g>
+<rect x="-86" y="22" width="172" height="58" rx="4" fill="#111" stroke="#A3E635" stroke-width="3"/>
+<text x="0" y="50" text-anchor="middle" font-family="Bangers, Impact, sans-serif" font-size="26" fill="#A3E635" letter-spacing="1.5">RUZARD</text>
+<text id="tag-ruzard" x="0" y="70" text-anchor="middle" font-family="Inter, sans-serif" font-size="11" font-weight="600" fill="#C9C2B4">—</text>
+<g class="coche"><circle cx="100" cy="30" r="13" fill="#34D399" stroke="#0A0A0A" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/><path d="M94 30 l5 5 l9 -10" fill="none" stroke="#062A1E" stroke-width="3" stroke-linecap="round"/></g>
+</g><g id="boite" role="button" tabindex="0" aria-label="Les Résultats du QG : choisir un compte rendu à consulter" transform="translate(1046 600)">
+<ellipse cx="0" cy="96" rx="120" ry="16" fill="#000" opacity=".4"/>
+<g id="boite-dossiers"></g>
+<path d="M-96 -10 L96 -10 L84 92 L-84 92 Z" fill="#B7793F" stroke="#0A0A0A" stroke-width="4" stroke-linejoin="round" stroke-linecap="round"/>
+<path d="M-96 -10 L-120 -36 L-40 -36 L-24 -10 Z M96 -10 L120 -36 L40 -36 L24 -10 Z" fill="#D69A5A" stroke="#0A0A0A" stroke-width="3.5" stroke-linejoin="round" stroke-linecap="round"/>
+<rect x="-78" y="10" width="156" height="58" rx="4" fill="#F4EDE0" stroke="#0A0A0A" stroke-width="3" stroke-linejoin="round" stroke-linecap="round"/>
+<text x="0" y="34" text-anchor="middle" font-family="Bangers, Impact, sans-serif" font-size="17" fill="#0A0A0A" letter-spacing="1">LES RÉSULTATS</text>
+<text x="0" y="58" text-anchor="middle" font-family="Bangers, Impact, sans-serif" font-size="24" fill="#DC2626" letter-spacing="1">DU QG</text>
+<g id="boite-badge" class="cache"><circle cx="86" cy="-34" r="20" fill="#DC2626" stroke="#0A0A0A" stroke-width="3" stroke-linejoin="round" stroke-linecap="round"/><text id="boite-nb" x="86" y="-26" text-anchor="middle" font-family="Bangers, Impact, sans-serif" font-size="22" fill="#FFF">0</text></g>
+<g id="boite-chute" class="cache"><rect x="-22" y="-120" width="44" height="32" rx="3" fill="#FDE68A" stroke="#0A0A0A" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/></g>
+</g></svg><div class="bulle os-bulle" id="bub-jones" style="left:19.83%;top:29.21%"></div><div class="bulle os-bulle" id="bub-hugues" style="left:43.17%;top:29.21%"></div><div class="bulle os-bulle" id="bub-sylvain" style="left:66.50%;top:29.21%"></div><div class="bulle os-bulle" id="bub-sylvie" style="left:19.83%;top:60.79%"></div><div class="bulle os-bulle" id="bub-igor" style="left:43.17%;top:60.79%"></div><div class="bulle os-bulle" id="bub-ruzard" style="left:66.50%;top:60.79%"></div></div>
+  <div hidden aria-hidden="true"><span id="road-jones"></span><div id="f-jones"></div><span id="road-hugues"></span><div id="f-hugues"></div><span id="road-sylvain"></span><div id="f-sylvain"></div><span id="road-sylvie"></span><div id="f-sylvie"></div><span id="road-igor"></span><div id="f-igor"></div><span id="road-ruzard"></span><div id="f-ruzard"></div></div>
+  <p class="mut" style="margin:0">Clique sur un agent pour le lancer ou voir son compte rendu, et sur la boîte « Les Résultats du QG » pour consulter les résultats.</p>
+  <div id="coffre" hidden>
+  <div class="grid">
+    <section class="card big" id="panel-jones" aria-labelledby="t-jones" style="--acc:#F59E0B">
+      <div class="row">
+        <div><h2 id="t-jones" style="color:var(--j)">Jones · carte des ventes</h2><span class="mut" id="j-sub">—</span></div>
+        <span class="pill" id="j-pill">—</span>
+      </div>
+      <div id="j-alert"></div>
+      <div class="stats" id="j-stats"></div>
+      <div class="grid">
+        <div style="flex:1 1 260px;min-width:0;display:flex;flex-direction:column;gap:8px"><h3 style="font-size:16px">Par commercial</h3><ul class="list" id="j-com"></ul></div>
+        <div style="flex:1 1 260px;min-width:0;display:flex;flex-direction:column;gap:8px"><h3 style="font-size:16px">Par équipe</h3><ul class="list" id="j-eq"></ul><div id="j-extra"></div></div>
+      </div>
+      <div class="row">
+        <a class="btn fill" href="https://buscando-flatpay.github.io/cartes-ventes/">Ouvrir la carte des ventes</a>
+        <button class="btn lance" type="button" data-agent="jones">Relancer Jones</button><span class="mut" id="lm-jones" role="status"></span>
+      </div>
+    </section>
+    <aside class="side">
+      <section class="card" id="panel-activite" style="display:flex;flex-direction:column;gap:12px">
+        <h2>Historique · 14 jours</h2>
+        <div class="hist" id="hist"></div>
+        <div class="mut" style="display:flex;gap:14px;flex-wrap:wrap"><span><i style="display:inline-block;width:12px;height:12px;border-radius:4px;background:var(--ok)"></i> OK</span><span><i style="display:inline-block;width:12px;height:12px;border-radius:4px;border:2px solid var(--warn)"></i> Bloqué</span><span><i style="display:inline-block;width:12px;height:12px;border-radius:4px;background:#1F2937"></i> Pas de mission</span></div>
+      </section>
+      
+    </aside>
+  </div>
+  <section class="card" id="panel-hugues" aria-labelledby="t-hugues" style="--acc:#A78BFA;display:flex;flex-direction:column;gap:16px">
+    <div class="row">
+      <div><h2 id="t-hugues" style="color:var(--h)">Hugues · Power BI de l'équipe</h2><span class="mut" id="h-sub">—</span></div>
+      <span class="pill" id="h-pill">—</span>
+    </div>
+    <div id="h-alert"></div>
+    <div class="row" style="justify-content:flex-start"><button class="btn fill lance" type="button" data-agent="hugues" style="border-color:#A78BFA;background:#A78BFA;color:#1A1033">Relancer Hugues</button><span class="mut" id="lm-hugues" role="status"></span></div>
+    <div class="stats" id="h-stats"></div>
+    <h3 style="font-size:17px" id="h-vt">La veille</h3>
+    <div class="wide"><table class="tbl" id="h-veille"></table></div>
+    <h3 style="font-size:17px" id="h-mt">Compilation du mois</h3>
+    <div class="wide"><table class="tbl" id="h-mois"></table></div>
+    <span class="mut" id="h-foot">Source : Field Sales Report - TM - FR (TM Dash + Sales Performance). Ventes = Sales (Signed).</span>
+  </section>
+  <section class="card" id="panel-sylvain" aria-labelledby="t-sylvain" style="--acc:#22D3EE;display:flex;flex-direction:column;gap:16px">
+    <div class="row">
+      <div><h2 id="t-sylvain" style="color:var(--s)">Sylvain · RDV des 3 prochains jours</h2><span class="mut" id="s-sub">—</span></div>
+      <span class="pill" id="s-pill">—</span>
+    </div>
+    <div id="s-alert"></div>
+    <div class="row" style="justify-content:flex-start"><button class="btn fill lance" type="button" data-agent="sylvain" style="border-color:#22D3EE;background:#22D3EE;color:#062A31">Relancer Sylvain</button><span class="mut" id="lm-sylvain" role="status"></span></div>
+    <div class="stats" id="s-stats"></div>
+    <div class="wide"><table class="tbl" id="s-tbl"></table></div>
+    <span class="mut">RDV hors follow-ups, reprogrammés et annulés · objectif 2,3 RDV/jour/commercial · <span style="color:#C4B5FD">violet</span> = dont META. Un jour à 0 peut être normal (codrive, canva).</span>
+    <div id="s-clients"></div>
+  </section>
+  <section class="card" id="panel-sylvie" aria-labelledby="t-sylvie" style="--acc:#F472B6;display:flex;flex-direction:column;gap:16px">
+    <div class="row">
+      <div><h2 id="t-sylvie" style="color:var(--y)">Sylvie · les mails du soir</h2><span class="mut" id="y-sub">—</span></div>
+      <span class="pill" id="y-pill">—</span>
+    </div>
+    <div id="y-alert"></div>
+    <div class="row" style="justify-content:flex-start"><button class="btn fill lance" type="button" data-agent="sylvie" style="border-color:#F472B6;background:#F472B6;color:#1A0610">Relancer Sylvie</button><span class="mut" id="lm-sylvie" role="status"></span></div>
+    <div class="stats" id="y-stats"></div>
+    <h3 style="font-size:24px">À traiter</h3>
+    <div id="y-traiter" style="display:flex;flex-direction:column;gap:12px"></div>
+    <details id="y-info-box"><summary style="cursor:pointer;font-family:var(--bang);font-size:20px;letter-spacing:1px;min-height:44px;display:flex;align-items:center" id="y-info-t">Pour info</summary><ul class="list" id="y-info" style="margin-top:10px"></ul></details>
+    <span class="mut">Filtres : gens de Flatpay (expéditeur, ou toi en copie avec eux) · rétention · support@flatpay.fr · RH. Sylvie lit seulement la liste des mails : elle n'ouvre rien, ne marque rien comme lu et ne répond à personne.</span>
+  </section>
+  <section class="card" id="panel-igor" aria-labelledby="t-igor" style="--acc:#60A5FA;display:flex;flex-direction:column;gap:16px">
+    <div class="row">
+      <div><h2 id="t-igor" style="color:var(--ig)">Igor · les installations en direct</h2><span class="mut" id="i-sub">—</span></div>
+      <span class="pill" id="i-pill">—</span>
+    </div>
+    <div id="i-alert"></div>
+    <div class="row" style="justify-content:flex-start"><button class="btn fill lance" type="button" data-agent="igor" style="border-color:#60A5FA;background:#60A5FA;color:#06101F">Envoyer Igor en mission</button><span class="mut" id="lm-igor" role="status"></span></div>
+    <div class="alert" style="background:#1A0610;border-color:#F472B6;color:#FCE7F3;display:flex;flex-direction:column;gap:10px">
+      <div class="row" style="justify-content:flex-start;gap:12px"><button class="btn fill lance" type="button" data-agent="sylvie_slack" style="border-color:#F472B6;background:#F472B6;color:#1A0610">📨 Sylvie : envoyer le point aux commerciaux</button><span class="mut" id="lm-sylvie_slack" role="status"></span></div>
+      <label style="display:flex;gap:8px;align-items:center;cursor:pointer"><input type="checkbox" id="i-essai" checked> <span><b>Mode essai</b> : tous les messages arrivent dans ton espace perso Slack, rien ne part aux commerciaux</span></label>
+      <span class="mut" id="i-envoi" style="color:#FBCFE8">Sylvie envoie sur Slack, à chaque commercial, le point du dernier passage d’Igor (du jour) : 🎉 validées · 🚀 80–99 % · 👀 40–79 % encaissé il y a 2 j ou moins · ⚠️ 40–79 % sans encaissement depuis 3 j ou plus · 🔧 moins de 40 %.</span>
+    </div>
+    <div class="stats" id="i-stats"></div>
+    <div class="seg" id="i-filtre" role="group" aria-label="Filtrer par commercial"></div>
+    <div id="i-liste" style="display:flex;flex-direction:column;gap:10px"></div>
+    <div id="i-mouv"></div>
+    <span class="mut">Validée = recettes ≥ 0,5 % du CA annuel déclaré (volume attendu × 12). En direct = recettes du portail (arrêtées à la veille) + ventes terminées du jour. Pour une mise à jour : appli Claude › Tâches planifiées › « Igor » › Exécuter maintenant (Chrome ouvert et connecté au portail).</span>
+  </section>
+  <section class="card" id="panel-ruzard" aria-labelledby="t-ruzard" style="--acc:#A3E635;display:flex;flex-direction:column;gap:16px">
+    <div class="row">
+      <div><h2 id="t-ruzard" style="color:var(--rz)">Ruzard · les archives</h2><span class="mut" id="r-sub">—</span></div>
+      <span class="pill" id="r-pill">—</span>
+    </div>
+    <div id="r-alert"></div>
+    <div class="row" style="justify-content:flex-start"><button class="btn fill lance" type="button" data-agent="ruzard" style="border-color:#A3E635;background:#A3E635;color:#13200A">Archiver la semaine maintenant</button><span class="mut" id="lm-ruzard" role="status"></span></div>
+    <div class="row" style="align-items:flex-start">
+      <div style="display:flex;flex-direction:column;gap:8px;min-width:0;flex:1 1 300px"><span class="mut">Mois</span><div class="seg" id="r-mois"></div></div>
+      <div style="display:flex;flex-direction:column;gap:8px;min-width:0;flex:2 1 400px"><span class="mut">Semaines</span><div class="seg" id="r-sem"></div></div>
+    </div>
+    <div id="r-vue" style="display:flex;flex-direction:column;gap:14px"><span class="mut">Chargement des archives…</span></div>
+    <span class="mut">Ruzard archive chaque vendredi à 22h (la semaine) et le dernier jour du mois à 22h (le mois, provisoire). Hugues fige la compilation définitive au premier passage du mois suivant.</span>
+  </section>
+  </div>
+</div>
+
+<div id="menu" hidden class="voile">
+  <div role="dialog" aria-modal="true" aria-labelledby="menu-t" class="boitebd" style="max-width:560px;box-shadow:10px 10px 0 #DC2626">
+    <div class="row"><h2 id="menu-t" style="font-size:36px;color:#FDE047">Les Résultats du QG</h2><button class="btn" type="button" id="menu-x" aria-label="Fermer">✕</button></div>
+    <span class="mut">Quel dossier veux-tu ouvrir ?</span>
+    <div id="menu-liste" style="display:flex;flex-direction:column;gap:10px"></div>
+  </div>
+</div>
+<div id="pop" hidden class="voile" style="align-items:flex-start;overflow:auto">
+  <div role="dialog" aria-modal="true" aria-labelledby="pop-t" class="boitebd" id="pop-boite" style="max-width:1120px;margin:20px auto">
+    <div class="row"><h2 id="pop-t" style="font-size:30px;color:#FDE047">Résultats</h2><div class="row" style="gap:10px"><button class="btn" type="button" id="pop-retour">‹ Les Résultats</button><button class="btn" type="button" id="pop-x" aria-label="Fermer">✕</button></div></div>
+    <div id="pop-corps"></div>
+  </div>
+</div>
+<div id="i-modal" hidden style="position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:90;display:flex;align-items:center;justify-content:center;padding:20px">
+  <div role="dialog" aria-modal="true" aria-labelledby="i-modal-t" id="i-boite" style="max-width:460px;width:100%;background:#111;border:4px solid var(--cream);box-shadow:10px 10px 0 #60A5FA;padding:22px;display:flex;flex-direction:column;gap:14px">
+    <h2 id="i-modal-t" style="font-size:34px;color:#60A5FA">Mission ?</h2>
+    <span id="i-modal-x"></span>
+    <div class="row" style="justify-content:flex-start">
+      <button class="btn fill" type="button" id="i-go" style="border-color:#60A5FA;background:#60A5FA;color:#06101F">Lancer</button>
+      <button class="btn" type="button" id="i-voir" style="border-color:var(--cream);color:var(--cream)">Voir le compte rendu</button>
+      <button class="btn" type="button" id="i-annuler" style="border-color:var(--cream);color:var(--cream)">Annuler</button>
+    </div>
+  </div>
+</div>
+<script>
+const $ = id => document.getElementById(id);
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+let DATA = { agents: {}, historique: {} };
+
+function paris(d = new Date()) {
+  const p = Object.fromEntries(new Intl.DateTimeFormat('fr-FR', { timeZone: 'Europe/Paris', year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', hour12: false }).formatToParts(d).map(x => [x.type, x.value]));
+  return { jour: `${p.year}-${p.month}-${p.day}`, hm: `${p.hour}:${p.minute}` };
+}
+const frDate = iso => { const [y, m, d] = iso.split('-'); return `${d}/${m}`; };
+const fin = s => s ? `${frDate(s.slice(0, 10))} à ${s.slice(11, 16).replace(':', 'h')}` : '—';
+const minutesDepuis = s => { if (!s) return 1e9; const now = paris(); if (s.slice(0, 10) !== now.jour) return 1e9; const [h, m] = s.slice(11, 16).split(':').map(Number), [H, M] = now.hm.split(':').map(Number); return H * 60 + M - (h * 60 + m); };
+
+function etatAgent(a, seuil) {
+  const now = paris();
+  if (a && a.etat === 'mission' && minutesDepuis(a.debut) < 120) return 'on';
+  if (a && a.jour === now.jour && a.etat === 'ok') return 'ok';
+  if (a && a.jour === now.jour && a.etat === 'bloque') return 'bloque';
+  const wd = new Date().toLocaleDateString('en-GB', { timeZone: 'Europe/Paris', weekday: 'short' });
+  if (wd === 'Sat' || wd === 'Sun') return 'repos';
+  if (now.hm >= seuil) return 'silence';
+  return 'repos';
+}
+const etatJones = a => etatAgent(a, '09:30');
+const LIB = (a, e, verbe, prochaine) => ({ on: ['en mission…', 'background:#F5A524;color:#1A1408', 'Parti ' + fin(a && a.debut) + ' : ' + verbe],
+    ok: ['rentré de mission', 'background:#34D399;color:#062A1E', 'Mission du jour terminée ' + fin(a && a.fin) + '.'],
+    bloque: ['bloqué', 'background:#F97316;color:#1A1408', 'Mission du jour interrompue ' + fin(a && a.fin) + '.'],
+    silence: ['pas de nouvelles', 'background:#374151;color:#E5E7EB', "Pas de compte rendu aujourd'hui : Mac éteint, appli Claude fermée, ou mission pas encore lancée."],
+    repos: ['au repos', 'background:#1C2333;color:#9CA3AF', 'Prochaine mission à ' + prochaine + ' (du lundi au vendredi).'] }[e]);
+
+const jourLong = iso => { const d = new Date(iso + 'T12:00:00'); return d.toLocaleDateString('fr-FR', { weekday: 'short', day: '2-digit', month: '2-digit' }); };
+const MOIS = ['janvier','février','mars','avril','mai','juin','juillet','août','septembre','octobre','novembre','décembre'];
+function renderHugues() {
+  const a = (DATA.agents || {}).hugues;
+  const e = etatAgent(a, '09:15');
+  const z = $('zone-hugues');
+  z.classList.remove('on', 'ok', 'bloque', 'silence', 'repos'); z.classList.add(e);
+  $('road-hugues').classList.toggle('on', e === 'on');
+  const L = LIB(a, e, 'il épluche le Power BI.', '8h00');
+  $('tag-hugues').textContent = '8h00 · ' + L[0];
+  $('h-pill').textContent = L[0]; $('h-pill').style.cssText = L[1]; $('h-sub').textContent = L[2];
+  $('h-alert').innerHTML = e === 'bloque' ? `<div class="alert"><b>${/power bi/i.test(a.blocage || '') ? 'Power BI en panne' : 'Ce qui bloque'} :</b> ${esc(a.blocage)}${a.dernier_rapport ? '<br><span style="opacity:.8">Ci-dessous : les chiffres du dernier passage réussi, conservés tels quels.</span>' : ''}</div>` : '';
+  const r = a ? (a.rapport || a.dernier_rapport) : null;
+  if (!r || !r.compilation) { $('h-stats').innerHTML = '<span class="mut">Aucune compilation pour l\'instant : premier passage demain à 8h00.</span>'; $('h-veille').innerHTML = ''; $('h-mois').innerHTML = ''; return e; }
+  const T = r.totaux || {};
+  const [y, m] = (r.mois || '-').split('-');
+  const cp = p => p == null ? '' : p < 50 ? 'r' : p < 90 ? 'o' : p < 100 ? 'y' : 'g';
+  const coul = { r: '#FDA4AF', o: '#FDBA74', y: '#FDE047', g: '#6EE7B7', '': '#F9FAFB' };
+  $('h-mt').textContent = 'Compilation de ' + (MOIS[+m - 1] || 'mois') + ' ' + (y || '') + (T.budget ? ' · objectif ' + T.budget : '');
+  const carte = (v, l, p) => `<div class="stat"><b style="color:${coul[cp(p)]}">${esc(v ?? 0)}</b><span>${esc(l)}${p != null ? ' · ' + p + ' % de l\'objectif' : ''}</span></div>`;
+  $('h-stats').innerHTML = carte(T.inst, 'installations', T.pct_inst) + carte(T.ventes, 'ventes', T.pct_ventes) + carte(T.og, 'ventes OG') + carte(T.pos_ventes, 'ventes POS') + carte(T.pos_inst, 'installations POS');
+  const cols = [['ventes', 'Ventes'], ['inst', 'Installations'], ['og', 'Ventes OG'], ['pos_ventes', 'Ventes POS'], ['pos_inst', 'Inst. POS']];
+  const cell = (v, pos) => v ? `<span class="n ${v < 0 ? 'r' : 'g'}">${v > 0 && pos ? '+' : ''}${v}</span>` : '<span class="mut">0</span>';
+  if (r.veille) {
+    $('h-vt').textContent = 'La veille' + (r.veille_depuis ? ' (depuis le passage du ' + frDate(r.veille_depuis) + ')' : '');
+    $('h-veille').innerHTML = '<tr><th>Commercial</th>' + cols.map(c => `<th>${c[1]}</th>`).join('') + '</tr>' + r.veille.map(v => '<tr><td>' + esc(v.nom) + '</td>' + cols.map(c => `<td>${cell(v[c[0]], true)}</td>`).join('') + '</tr>').join('');
+  } else { $('h-vt').textContent = 'La veille'; $('h-veille').innerHTML = `<tr><td class="mut" style="text-align:left">${esc(r.veille_note || 'Pas de chiffres de la veille.')}</td></tr>`; }
+  const obj = (v, p) => `<span class="n ${cp(p)}">${v || 0}</span>${p != null ? ` <span class="mut" style="font-size:12px">${p} %</span>` : ''}`;
+  const pl = x => `<td><b>${x || 0}</b></td>`;
+  $('h-mois').innerHTML = '<tr><th>Commercial</th><th>Objectif</th><th>Installations</th><th>Ventes</th><th>Ventes OG</th><th>Ventes POS</th><th>Inst. POS</th></tr>'
+    + r.compilation.map(x => '<tr><td>' + esc(x.nom) + (x.parti ? ' <span class="mut">(parti)</span>' : '') + '</td><td><span class="mut">' + (x.budget || '—') + '</span></td><td>' + obj(x.inst, x.pct_inst) + '</td><td>' + obj(x.ventes, x.pct_ventes) + '</td>' + pl(x.og) + pl(x.pos_ventes) + pl(x.pos_inst) + '</tr>').join('')
+    + '<tr><td>Équipe</td><td><b>' + (T.budget || '—') + '</b></td><td>' + obj(T.inst, T.pct_inst) + '</td><td>' + obj(T.ventes, T.pct_ventes) + '</td><td><b style="color:var(--h)">' + (T.og ?? 0) + '</b></td><td><b style="color:var(--h)">' + (T.pos_ventes ?? 0) + '</b></td><td><b style="color:var(--h)">' + (T.pos_inst ?? 0) + '</b></td></tr>';
+  $('h-foot').textContent = 'Source : Field Sales Report - TM - FR · ' + (r.maj_powerbi || '') + ' · Ventes = Sales (Signed) · couleurs : rouge < 50 %, orange < 90 %, jaune < 100 %, vert ≥ 100 % de l\'objectif.' + ((r.avertissements || []).length ? ' ⚠ ' + r.avertissements.join(' · ') : '');
+  return e;
+}
+function renderSylvain() {
+  const a = (DATA.agents || {}).sylvain;
+  const e = etatAgent(a, '10:00');
+  const z = $('zone-sylvain');
+  z.classList.remove('on', 'ok', 'bloque', 'silence', 'repos'); z.classList.add(e);
+  $('road-sylvain').classList.toggle('on', e === 'on');
+  const L = LIB(a, e, 'il épluche les agendas.', '8h45');
+  $('tag-sylvain').textContent = '8h45 · ' + L[0];
+  $('s-pill').textContent = L[0]; $('s-pill').style.cssText = L[1]; $('s-sub').textContent = L[2];
+  $('s-alert').innerHTML = e === 'bloque' ? `<div class="alert"><b>Ce qui bloque :</b> ${esc(a.blocage)}${a.dernier_rapport ? '<br><span style="opacity:.8">Ci-dessous : le dernier planning réussi.</span>' : ''}</div>` : '';
+  const r = a ? (a.rapport || a.dernier_rapport) : null;
+  if (!r) { $('s-stats').innerHTML = '<span class="mut">Aucun planning pour l\'instant : premier passage demain matin.</span>'; $('s-tbl').innerHTML = ''; $('s-clients').innerHTML = ''; return e; }
+  const J = r.jours || [], obj = r.objectif || 2.3;
+  const vrais = (r.deja_clients || []).filter(x => !x.suivi_recent), suivis = (r.deja_clients || []).filter(x => x.suivi_recent);
+  const sous = (r.commerciaux || []).filter(c => c.moyenne < obj).length;
+  $('s-stats').innerHTML = [
+    [r.totaux.rdv, 'RDV sur les 3 jours'],
+    [r.totaux.meta, 'dont META'],
+    [sous, 'commerciaux sous 2,3/jour'],
+    [vrais.length, 'RDV chez des clients déjà signés']
+  ].map(([v, l]) => `<div class="stat"><b>${esc(v)}</b><span>${esc(l)}</span></div>`).join('');
+  const cl = n => n >= 3 ? 'g' : n >= 2 ? 'a' : 'r';
+  let T = '<tr><th>Commercial</th>' + J.map(d => `<th>${esc(jourLong(d))}</th>`).join('') + '<th>Moy./jour</th><th>META</th></tr>';
+  T += (r.commerciaux || []).map(c => '<tr><td>' + esc(c.nom) + '</td>' + J.map(d => { const n = c.par_jour[d] || 0, m = (c.meta_par_jour || {})[d] || 0; return `<td><span class="n ${cl(n)}">${n}</span>${m ? ` <span class="meta">${m} META</span>` : ''}</td>`; }).join('') + `<td><span class="n ${c.moyenne >= obj ? 'g' : c.moyenne >= 2 ? 'a' : 'r'}">${String(c.moyenne).replace('.', ',')}</span></td><td>${c.meta || '—'}</td></tr>`).join('');
+  T += '<tr><td>Équipe</td>' + J.map(d => `<td><b>${(r.totaux.par_jour || {})[d] || 0}</b></td>`).join('') + '<td></td><td><b>' + r.totaux.meta + '</b></td></tr>';
+  $('s-tbl').innerHTML = T;
+  const item = x => `<li><span><b>${esc(x.commercial)}</b> · ${esc(x.date)} · ${esc(x.commerce)} <span class="mut">(SIREN ${esc(x.siren)}, ${esc(x.type)})</span></span><span class="mut">client depuis le ${esc(x.vendu_le ? frDate(x.vendu_le) : '?')}${x.vendu_par ? ' · vendu par ' + esc(x.vendu_par) : ''}</span></li>`;
+  let C = '';
+  if (vrais.length) C += `<div class="alert" style="display:flex;flex-direction:column;gap:8px"><b>Attention : RDV chez des commerces déjà clients</b><ul class="list">${vrais.map(item).join('')}</ul></div>`;
+  else C += '<span class="mut">Aucun RDV prévu chez un commerce déjà client.</span>';
+  if (suivis.length) C += `<h3 style="font-size:16px;margin-top:10px">Suivis de ventes récentes (normal)</h3><ul class="list">${suivis.map(item).join('')}</ul>`;
+  $('s-clients').innerHTML = C;
+  return e;
+}
+
+// ---------- Ruzard : archives ----------
+let ARCH = { index: null, sel: null, docs: {} }, DB = null;
+function etatRuzard(a) {
+  const now = paris();
+  if (a && a.etat === 'mission' && minutesDepuis(a.debut) < 120) return 'on';
+  if (!a || !a.jour) return 'repos';
+  const age = (new Date(now.jour) - new Date(a.jour)) / 864e5;
+  if (a.etat === 'bloque' && age <= 7) return 'bloque';
+  if (a.etat === 'ok' && age <= 1) return 'ok';
+  return 'repos';
+}
+function renderRuzard() {
+  const a = (DATA.agents || {}).ruzard;
+  const e = etatRuzard(a);
+  const z = $('zone-ruzard');
+  z.classList.remove('on', 'ok', 'bloque', 'silence', 'repos'); z.classList.add(e);
+  $('road-ruzard').classList.toggle('on', e === 'on');
+  const L = { on: ['en mission…', 'background:#A3E635;color:#13200A', 'Parti ' + fin(a && a.debut) + ' : il range les comptes rendus de la semaine.'],
+    ok: ['archives rangées', 'background:#34D399;color:#062A1E', 'Dernier rangement ' + fin(a && a.fin) + '.'],
+    bloque: ['bloqué', 'background:#F97316;color:#1A1408', 'Rangement interrompu ' + fin(a && a.fin) + '.'],
+    repos: ['au repos', 'background:#1C2333;color:#9CA3AF', (a && a.fin ? 'Dernier rangement ' + fin(a.fin) + '. ' : '') + 'Prochain rangement vendredi à 22h.'] }[e];
+  $('tag-ruzard').textContent = 'ven. 22h · ' + L[0];
+  $('r-pill').textContent = L[0]; $('r-pill').style.cssText = L[1]; $('r-sub').textContent = L[2];
+  $('r-alert').innerHTML = e === 'bloque' ? `<div class="alert"><b>Ce qui bloque :</b> ${esc(a.blocage)}</div>` : '';
+  return e;
+}
+const chemin = (t, id) => (t === 'mois' ? 'archives_mois/' : 'archives_semaines/') + id;
+function lire(path, cb) {
+  if (ARCH.docs[path] !== undefined) return cb(ARCH.docs[path]);
+  if (!DB) return cb(null);
+  let un = null, fait = false;
+  un = DB.doc(path).onSnapshot(sn => { ARCH.docs[path] = sn.exists ? sn.data() : null; if (!fait) { fait = true; cb(ARCH.docs[path]); } else if (ARCH.sel && chemin(ARCH.sel.t, ARCH.sel.id) === path) afficherArchive(); }, () => cb(null));
+}
+function renderIndex() {
+  const I = ARCH.index || { mois: [], semaines: [] };
+  const bt = (t, x) => `<button type="button" data-t="${t}" data-id="${esc(x.id)}" class="${ARCH.sel && ARCH.sel.t === t && ARCH.sel.id === x.id ? 'sel' : ''}">${esc(x.lib || x.id)}</button>`;
+  $('r-mois').innerHTML = (I.mois || []).map(x => bt('mois', x)).join('') || '<span class="mut">Aucun mois archivé pour l\'instant.</span>';
+  $('r-sem').innerHTML = (I.semaines || []).slice(0, 12).map(x => bt('semaine', x)).join('') || '<span class="mut">Première archive vendredi soir.</span>';
+  document.querySelectorAll('#r-mois button,#r-sem button').forEach(b => b.addEventListener('click', () => { ARCH.sel = { t: b.dataset.t, id: b.dataset.id }; renderIndex(); afficherArchive(); }));
+  if (!ARCH.sel) { const f = (I.mois || [])[0] ? { t: 'mois', id: I.mois[0].id } : (I.semaines || [])[0] ? { t: 'semaine', id: I.semaines[0].id } : null; if (f) { ARCH.sel = f; renderIndex(); afficherArchive(); } else $('r-vue').innerHTML = '<span class="mut">Ruzard n\'a encore rien archivé : la première semaine sera rangée vendredi à 22h.</span>'; }
+}
+function precedent(sel) {
+  const L = ((ARCH.index || {})[sel.t === 'mois' ? 'mois' : 'semaines']) || [];
+  const i = L.findIndex(x => x.id === sel.id);
+  return i >= 0 && L[i + 1] ? L[i + 1] : null;
+}
+function afficherArchive() {
+  const sel = ARCH.sel; if (!sel) return;
+  $('r-vue').innerHTML = '<span class="mut">Ouverture de l\'archive…</span>';
+  lire(chemin(sel.t, sel.id), A => {
+    if (!A) { $('r-vue').innerHTML = '<span class="mut">Archive introuvable.</span>'; return; }
+    const p = precedent(sel);
+    if (p) lire(chemin(sel.t, p.id), P => dessiner(A, P, p)); else dessiner(A, null, null);
+  });
+}
+function dessiner(A, P, pInfo) {
+  const cp = q => q == null ? '' : q < 50 ? 'r' : q < 90 ? 'o' : q < 100 ? 'y' : 'g';
+  const coul = { r: '#FDA4AF', o: '#FDBA74', y: '#FDE047', g: '#6EE7B7', '': '#F9FAFB' };
+  const delta = (v, w) => (w == null || v == null) ? '' : v === w ? '<span class="delta mut">=</span>' : `<span class="delta ${v > w ? 'up' : 'down'}">${v > w ? '▲' : '▼'} ${Math.abs(v - w)}</span>`;
+  let H = '';
+  if (A.type === 'mois') {
+    const h = A.hugues_final || A.hugues_provisoire, ph = P ? (P.hugues_final || P.hugues_provisoire) : null;
+    const [y, m] = A.id.split('-');
+    H += `<div class="row"><h3 style="font-size:19px">${MOIS[+m - 1].replace(/^./, c => c.toUpperCase())} ${y}</h3>${A.hugues_final ? '<span class="badge" style="background:#064E3B;color:#6EE7B7">définitif</span>' : '<span class="badge" style="background:#3B2A06;color:#FCD34D">provisoire</span>'}</div>`;
+    if (!h) H += '<span class="mut">Pas de compilation Hugues pour ce mois.</span>';
+    else {
+      const T = h.totaux || {}, PT = (ph || {}).totaux || {};
+      const carte = (k, l, q) => `<div class="stat"><b style="color:${coul[cp(q)]}">${T[k] ?? 0}${delta(T[k], ph ? PT[k] : null)}</b><span>${l}${q != null ? ' · ' + q + ' %' : ''}</span></div>`;
+      H += `<div class="stats">${carte('inst', 'installations', T.pct_inst)}${carte('ventes', 'ventes', T.pct_ventes)}${carte('og', 'ventes OG')}${carte('pos_ventes', 'ventes POS')}${carte('pos_inst', 'installations POS')}</div>`;
+      if (pInfo && ph) H += `<span class="mut">▲▼ comparé à ${esc(pInfo.lib || pInfo.id)}</span>`;
+      const pc = {}; ((ph || {}).compilation || []).forEach(x => pc[x.nom] = x);
+      const obj = (v, q, w) => `<span class="n ${cp(q)}">${v || 0}</span>${q != null ? ` <span class="mut" style="font-size:12px">${q} %</span>` : ''}${delta(v, w)}`;
+      H += '<div class="wide"><table class="tbl"><tr><th>Commercial</th><th>Objectif</th><th>Installations</th><th>Ventes</th><th>Ventes OG</th><th>Ventes POS</th><th>Inst. POS</th></tr>'
+        + (h.compilation || []).map(x => { const w = pc[x.nom]; return '<tr><td>' + esc(x.nom) + '</td><td><span class="mut">' + (x.budget || '—') + '</span></td><td>' + obj(x.inst, x.pct_inst, w && w.inst) + '</td><td>' + obj(x.ventes, x.pct_ventes, w && w.ventes) + '</td><td><b>' + (x.og || 0) + '</b></td><td><b>' + (x.pos_ventes || 0) + '</b></td><td><b>' + (x.pos_inst || 0) + '</b></td></tr>'; }).join('')
+        + '</table></div>';
+      H += `<span class="mut">Power BI du ${esc(h.jour ? frDate(h.jour) : '?')}${(A.semaines || []).length ? ' · semaines archivées : ' + A.semaines.map(esc).join(', ') : ''}</span>`;
+    }
+  } else {
+    const h = A.hugues, ph = P ? P.hugues : null;
+    H += `<div class="row"><h3 style="font-size:19px">Semaine du ${frDate(A.du)} au ${frDate(A.au)}</h3><span class="mut">${esc(A.id)}</span></div>`;
+    if (!h) H += '<span class="mut">Pas de chiffres Hugues cette semaine.</span>';
+    else {
+      const S = h.semaine_tot || {}, PS = (ph || {}).semaine_tot || {};
+      const carte = (k, l) => `<div class="stat"><b>${S[k] ?? 0}${delta(S[k], ph ? PS[k] : null)}</b><span>${l} dans la semaine</span></div>`;
+      H += `<div class="stats">${carte('inst', 'installations')}${carte('ventes', 'ventes')}${carte('og', 'ventes OG')}${carte('pos_ventes', 'ventes POS')}${carte('pos_inst', 'installations POS')}</div>`;
+      if (pInfo && ph) H += `<span class="mut">▲▼ comparé à ${esc(pInfo.lib || pInfo.id)}</span>`;
+      const cum = {}; (h.compilation || []).forEach(x => cum[x.nom] = x);
+      const c = v => v ? `<span class="n ${v < 0 ? 'r' : 'g'}">${v > 0 ? '+' : ''}${v}</span>` : '<span class="mut">0</span>';
+      H += '<div class="wide"><table class="tbl"><tr><th>Commercial</th><th>Ventes</th><th>Installations</th><th>Ventes OG</th><th>Ventes POS</th><th>Inst. POS</th><th>Cumul du mois (inst. / ventes)</th></tr>'
+        + (h.semaine || []).map(x => { const k = cum[x.nom] || {}; return '<tr><td>' + esc(x.nom) + '</td>' + ['ventes', 'inst', 'og', 'pos_ventes', 'pos_inst'].map(f => '<td>' + c(x[f]) + '</td>').join('') + `<td><span class="n ${cp(k.pct_inst)}">${k.inst || 0}</span> / <span class="n ${cp(k.pct_ventes)}">${k.ventes || 0}</span></td></tr>`; }).join('')
+        + '</table></div>';
+    }
+    if (A.jones && A.jones.ajoutees_semaine != null) H += `<span class="mut">Jones : ${A.jones.ajoutees_semaine} ventes ajoutées à la carte cette semaine (${A.jones.total_ventes_carte} au total).</span>`;
+  }
+  const act = A.activite || {};
+  const ags = Object.keys(act).filter(k => Object.keys(act[k]).length);
+  if (ags.length) {
+    const ok = ags.map(k => { const v = Object.values(act[k]); const n = v.filter(x => x === 'ok').length, b = v.filter(x => x === 'bloque').length; return `<li><span>${esc(k[0].toUpperCase() + k.slice(1))}</span><span class="mut">${n} mission${n > 1 ? 's' : ''} OK${b ? ` · <span style="color:var(--warn)">${b} bloquée${b > 1 ? 's' : ''}</span>` : ''}</span></li>`; }).join('');
+    H += `<h3 style="font-size:16px">Activité des agents</h3><ul class="list">${ok}</ul>`;
+  }
+  if ((A.notes || []).length) H += `<span class="mut">${A.notes.map(esc).join(' · ')}</span>`;
+  $('r-vue').innerHTML = H;
+}
+
+// ---------- Sylvie : mails ----------
+function etatSylvie(a) {
+  const now = paris();
+  if (a && a.etat === 'mission' && minutesDepuis(a.debut) < 120) return 'on';
+  if (a && a.jour === now.jour && a.etat === 'ok') return 'ok';
+  if (a && a.jour === now.jour && a.etat === 'bloque') return 'bloque';
+  return now.hm >= '20:00' ? 'silence' : 'repos';
+}
+const CATS = { flatpay: 'Flatpay', retention: 'Rétention', support: 'Support', rh: 'RH' };
+function renderSylvie() {
+  const a = (DATA.agents || {}).sylvie;
+  const e = etatSylvie(a);
+  const z = $('zone-sylvie');
+  z.classList.remove('on', 'ok', 'bloque', 'silence', 'repos'); z.classList.add(e);
+  $('road-sylvie').classList.toggle('on', e === 'on');
+  const L = { on: ['en mission…', 'background:#F472B6;color:#1A0610', 'Partie ' + fin(a && a.debut) + ' : elle trie le courrier.'],
+    ok: ['courrier trié', 'background:#34D399;color:#062A1E', 'Tri du soir terminé ' + fin(a && a.fin) + '.'],
+    bloque: ['bloquée', 'background:#F97316;color:#1A1408', 'Tri interrompu ' + fin(a && a.fin) + '.'],
+    silence: ['pas de nouvelles', 'background:#374151;color:#E5E7EB', "Pas de tri ce soir : Mac éteint, appli Claude fermée, ou Outlook déconnecté."],
+    repos: ['au repos', 'background:#1C2333;color:#9CA3AF', (a && a.fin ? 'Dernier tri ' + fin(a.fin) + '. ' : '') + 'Prochain tri à 19h00, tous les soirs.'] }[e];
+  $('tag-sylvie').textContent = '19h00 · ' + L[0];
+  $('y-pill').textContent = L[0]; $('y-pill').style.cssText = L[1]; $('y-sub').textContent = L[2];
+  $('y-alert').innerHTML = e === 'bloque' ? `<div class="alert"><b>Ce qui bloque :</b> ${esc(a.blocage)}${a.dernier_rapport ? '<br><span style="opacity:.8">Ci-dessous : le dernier tri réussi.</span>' : ''}</div>` : '';
+  const r = a ? (a.rapport || a.dernier_rapport) : null;
+  const n = r ? (r.a_traiter || []).length : null;
+  $('bub-sylvie').textContent = e === 'on' ? 'Je trie ton courrier…' : e === 'bloque' ? 'Outlook ne répond pas !' : r && e === 'ok' ? (n ? `${n} mail${n > 1 ? 's' : ''} pour toi ce soir !` : 'Rien d’urgent ce soir.') : 'Rendez-vous à 19h.';
+  $('f-sylvie').innerHTML = `<div><b style="color:${n ? '#F472B6' : 'var(--cream)'}">${n == null ? '—' : n}</b><small>à traiter</small></div><div><b>${r ? r.nb_tries : '—'}</b><small>mails triés</small></div>`;
+  if (!r) { $('y-stats').innerHTML = '<span class="mut">Premier tri ce soir à 19h00.</span>'; $('y-traiter').innerHTML = ''; $('y-info').innerHTML = ''; $('y-info-box').hidden = true; return e; }
+  const pc = r.par_categorie || {};
+  $('y-stats').innerHTML = [[n, 'mails à traiter'], [r.nb_tries, 'mails triés (sur ' + r.nb_lus + ' reçus)'], [pc.flatpay || 0, 'Flatpay'], [pc.retention || 0, 'rétention'], [pc.support || 0, 'support'], [pc.rh || 0, 'RH']]
+    .map(([v, l], i) => `<div class="stat"><b style="${i === 0 && v ? 'color:#F472B6' : ''}">${esc(v)}</b><span>${esc(l)}</span></div>`).join('');
+  const badges = c => (c || []).map(k => `<span class="badge-c c-${k}">${esc(CATS[k] || k)}</span>`).join(' ');
+  const quand = d => d ? frDate(d.slice(0, 10)) + ' à ' + d.slice(11, 16).replace(':', 'h') : '';
+  $('y-traiter').innerHTML = n ? r.a_traiter.map(m => `<div class="mail">
+      <div class="tete"><span>${badges(m.categories)}</span><span class="mut" style="font-size:13px">${esc(quand(m.date))}${m.nb_mails > 1 ? ' · ' + m.nb_mails + ' mails dans le fil' : ''}${m.non_lu ? ' · <b style="color:#F472B6">non lu</b>' : ''}</span></div>
+      <b class="suj">${esc(m.sujet)}</b>
+      <span class="mut" style="font-size:14px">De ${esc(m.expediteur)}${(m.autres_expediteurs || []).length ? ' (avec ' + esc(m.autres_expediteurs.join(', ')) + ')' : ''}</span>
+      ${m.pourquoi ? `<span style="font-size:14px">${esc(m.pourquoi)}</span>` : ''}
+      ${m.a_faire ? `<span class="afaire">À faire : ${esc(m.a_faire)}</span>` : ''}
+    </div>`).join('') : '<span class="mut">Aucun mail ne demande ton intervention ce soir.</span>';
+  const info = r.pour_info || [];
+  $('y-info-box').hidden = !info.length;
+  $('y-info-t').textContent = 'Pour info · ' + info.length + ' mail' + (info.length > 1 ? 's' : '') + ' trié' + (info.length > 1 ? 's' : '') + ' sans action';
+  $('y-info').innerHTML = info.map(m => `<li><span>${badges(m.categories)} ${esc(m.sujet)} <span class="mut">· ${esc(m.expediteur)}</span>${m.pourquoi ? '<br><span class="mut" style="font-size:13px">' + esc(m.pourquoi) + '</span>' : ''}</span><span class="mut" style="white-space:nowrap">${esc(quand(m.date))}</span></li>`).join('');
+  return e;
+}
+
+// ---------- Igor : installations ----------
+let IGF = 'tous';
+function etatIgor(a) {
+  const now = paris();
+  if (a && a.etat === 'mission' && minutesDepuis(a.debut) < 120) return 'on';
+  if (a && a.jour === now.jour && a.etat === 'ok') return 'ok';
+  if (a && a.jour === now.jour && a.etat === 'bloque') return 'bloque';
+  return 'repos';
+}
+const derEnc = x => {
+  if (!('jours_sans' in x)) return '';
+  const j = x.jours_sans, al = x.categorie === 'alerte';
+  const t = j == null ? (x.dernier_inconnu ? 'dernier encaissement inconnu' : 'jamais encaissé') : j === 0 ? 'encaissé aujourd’hui' : j === 1 ? 'dernier encaissement hier' : 'dernier encaissement il y a ' + j + ' j';
+  return ' · ' + (al ? '<b style="color:#F97316">⚠️ ' + t + '</b>' : t);
+};
+function renderEnvoi() {
+  const a = (DATA.agents || {}).igor, v = a && a.envoi_slack;
+  const el = $('i-envoi'); if (!el || !v) return;
+  const err = (v.erreurs || []).length ? ` · <b style="color:#FDBA74">${v.erreurs.length} échec(s) : ${v.erreurs.map(x => esc((x.sales || '').split(' ')[0]) + ' (' + esc(x.raison) + ')').join(', ')}</b>` : '';
+  el.innerHTML = `Dernier envoi le ${frDate(v.jour)} à ${esc((v.heure || '').replace(':', 'h'))}${v.essai ? ' <b>(essai, chez toi seul)</b>' : ''} : ${(v.envoyes || []).map(n => esc(n.split(' ')[0])).join(', ') || 'personne'}${err}.`;
+}
+function renderIgor() {
+  const a = (DATA.agents || {}).igor;
+  const e = etatIgor(a);
+  const z = $('zone-igor');
+  z.classList.remove('on', 'ok', 'bloque', 'silence', 'repos'); z.classList.add(e);
+  $('road-igor').classList.toggle('on', e === 'on');
+  const r = a ? (a.rapport || a.dernier_rapport) : null;
+  const L = { on: ['en filature…', 'background:#60A5FA;color:#06101F', 'Parti ' + fin(a && a.debut) + ' : il épluche les installations une par une.'],
+    ok: ['rapport livré', 'background:#34D399;color:#062A1E', 'Point fait ' + fin(a && a.fin) + '.'],
+    bloque: ['grillé', 'background:#F97316;color:#1A1408', 'Mission interrompue ' + fin(a && a.fin) + '.'],
+    repos: ['en planque', 'background:#1C2333;color:#9CA3AF', (r ? 'Dernier point le ' + frDate(r.jour) + ' à ' + (r.heure || '').replace(':', 'h') + '. ' : '') + 'Lance-le quand tu veux : il ne part qu’à ta demande.'] }[e];
+  $('tag-igor').textContent = 'à la demande · ' + L[0];
+  $('i-pill').textContent = L[0]; $('i-pill').style.cssText = L[1]; $('i-sub').textContent = L[2];
+  $('i-alert').innerHTML = e === 'bloque' ? `<div class="alert"><b>Ce qui bloque :</b> ${esc(a.blocage)}${a.dernier_rapport ? '<br><span style="opacity:.8">Ci-dessous : le dernier point réussi.</span>' : ''}</div>` : '';
+  const T = r ? r.totaux : null;
+  $('bub-igor').textContent = e === 'on' ? 'Je file les instals…' : e === 'bloque' ? 'Le portail m’a repéré !' : T ? `${T.valides} validée${T.valides > 1 ? 's' : ''}, ${T.proches} presque !` : 'Prêt pour une filature.';
+  $('f-igor').innerHTML = `<div><b style="color:#6EE7B7">${T ? T.valides : '—'}</b><small>validées</small></div><div><b>${T ? T.nb : '—'}</b><small>installations</small></div>`;
+  if (!r) { $('i-stats').innerHTML = '<span class="mut">Pas encore de point : lance Igor quand tu veux.</span>'; $('i-liste').innerHTML = ''; $('i-filtre').innerHTML = ''; $('i-mouv').innerHTML = ''; return e; }
+  const eur = v => (Math.round(v * 100) / 100).toLocaleString('fr-FR', { minimumFractionDigits: 0, maximumFractionDigits: 2 }) + ' €';
+  $('i-stats').innerHTML = [[T.valides, 'validées (≥ 100 %)', '#6EE7B7'], [T.proches, 'presque (75–99 %)', '#FDE047'], [T.en_cours, 'en cours', ''], [T.zero, 'à 0 € encore', '#FDA4AF'], [eur(T.jour), 'encaissés aujourd’hui', '#60A5FA']]
+    .map(([v, l, c]) => `<div class="stat"><b style="${c ? 'color:' + c : ''}">${esc(v)}</b><span>${esc(l)}</span></div>`).join('');
+  const sales = ['tous', ...r.par_sales.map(s => s.sales)];
+  $('i-filtre').innerHTML = sales.map(s => { const ps = r.par_sales.find(x => x.sales === s); return `<button type="button" data-s="${esc(s)}" class="${IGF === s ? 'sel' : ''}">${s === 'tous' ? 'Toute l’équipe' : esc(s.split(' ')[0]) + (ps ? ' · ' + ps.valides + '/' + ps.nb : '')}</button>`; }).join('');
+  $('i-filtre').querySelectorAll('button').forEach(b => b.addEventListener('click', () => { IGF = b.dataset.s; renderIgor(); }));
+  const cp = q => q == null ? '#4B5563' : q < 50 ? '#FDA4AF' : q < 90 ? '#FDBA74' : q < 100 ? '#FDE047' : '#6EE7B7';
+  const liste = r.installations.filter(x => IGF === 'tous' || x.sales === IGF);
+  $('i-liste').innerHTML = liste.map(x => {
+    const w = Math.min(100, x.pct || 0), wh = Math.min(100, x.pct_hier || 0);
+    return `<div class="inst">
+      <div style="display:flex;flex-direction:column;gap:2px;min-width:0"><b style="font-size:15px">${esc(x.nom)}</b><span class="mut" style="font-size:13px">${esc(x.sales)} · ${esc(x.statut)}${x.attente_j != null ? ' · en attente depuis ' + x.attente_j + ' j' : ''}</span></div>
+      <div style="display:flex;flex-direction:column;gap:4px;min-width:0"><div class="barre" title="${esc(x.pct)} %"><i style="width:${w}%;background:${cp(x.pct)}"></i><em style="width:${wh}%"></em></div>
+        <span class="mut" style="font-size:13px">${eur(x.live)} / ${eur(x.seuil)} attendus${x.jour ? ' · <b style="color:#60A5FA">+' + eur(x.jour) + ' aujourd’hui</b>' : ''}${x.valide ? '' : ' · reste ' + eur(x.reste)}${x.controle === 'KO' || !x.lu ? ' · <b style="color:#F97316">transactions du jour non vérifiées</b>' : ''}${derEnc(x)}</span></div>
+      <b style="font-family:var(--bang);font-weight:400;font-size:30px;color:${cp(x.pct)};min-width:84px;text-align:right">${x.pct == null ? '—' : String(x.pct).replace('.', ',') + ' %'}</b>
+    </div>`; }).join('') || '<span class="mut">Aucune installation en attente.</span>';
+  let M = '';
+  if ((r.sorties || []).length) M += `<div class="alert" style="background:#062A1E;border-color:#34D399;color:#D1FAE5"><b>Sorties de la liste depuis le ${esc(r.depuis || 'dernier point')} (validées) :</b> ${r.sorties.map(x => esc(x.nom) + ' (' + esc(x.sales.split(' ')[0]) + ')').join(', ')}</div>`;
+  if ((r.nouvelles || []).length) M += `<div class="alert" style="margin-top:8px;background:#0B1A33;border-color:#60A5FA;color:#DBEAFE"><b>Nouvelles installations :</b> ${r.nouvelles.map(x => esc(x.nom) + ' (' + esc(x.sales.split(' ')[0]) + ')').join(', ')}</div>`;
+  $('i-mouv').innerHTML = M;
+  renderEnvoi();
+  return e;
+}
+
+function bullesEtFiches(etats) {
+  const A = DATA.agents || {}, R = k => A[k] ? (A[k].rapport || A[k].dernier_rapport) : null;
+  const fmt = n => (n == null ? '—' : String(n).replace(/\B(?=(\d{3})+(?!\d))/g, ' '));
+  const B = {
+    jones: { on: 'Je fouille le portail…', bloque: 'Coincé ! Regarde le compte rendu.', repos: 'Je repars demain à 8h15.' },
+    hugues: { on: 'Je décortique le Power BI…', bloque: 'Le Power BI fait des siennes !', repos: 'Prochains comptes à 8h00.' },
+    sylvain: { on: 'Allô ? Je cale les agendas…', bloque: 'Le portail ne répond pas !', repos: 'Planning demain 8h45.' },
+    ruzard: { on: 'Je range la semaine…', bloque: 'Une boîte coince !', repos: 'Chaque semaine a sa boîte.' } };
+  const j = R('jones'), h = R('hugues'), sy = R('sylvain');
+  const ok = {
+    jones: j ? (j.ventes_ajoutees ? `${j.ventes_ajoutees} nouvelle${j.ventes_ajoutees > 1 ? 's' : ''} vente${j.ventes_ajoutees > 1 ? 's' : ''} sur la carte !` : 'Rien de neuf sur la carte.') : '',
+    hugues: h && h.totaux ? `${h.totaux.inst} installations : ${h.totaux.pct_inst ?? '?'} % de l’objectif !` : '',
+    sylvain: sy && sy.totaux ? `${sy.totaux.rdv} RDV sur 3 jours, dont ${sy.totaux.meta} META.` : '',
+    ruzard: 'Tout est rangé.' };
+  for (const k of ['jones', 'hugues', 'sylvain', 'ruzard']) {
+    const e = etats[k], el = $('bub-' + k); if (!el) continue;
+    el.textContent = e === 'ok' ? ok[k] : (B[k][e === 'silence' ? 'repos' : e] || '');
+  }
+  const f = (id, a, b) => { $('f-' + id).innerHTML = [a, b].map(([v, l, c]) => `<div><b style="color:${c || 'var(--cream)'}">${esc(v)}</b><small>${esc(l)}</small></div>`).join(''); };
+  const cp = q => q == null ? null : q < 50 ? '#FDA4AF' : q < 90 ? '#FDBA74' : q < 100 ? '#FDE047' : '#6EE7B7';
+  f('jones', [fmt(j && j.ventes_ajoutees), 'ventes ajoutées'], [fmt(j && j.total_ventes_carte), 'sur la carte']);
+  f('hugues', [fmt(h && h.totaux && h.totaux.inst), 'inst.' + (h && h.totaux && h.totaux.pct_inst != null ? ' · ' + h.totaux.pct_inst + ' %' : ''), cp(h && h.totaux && h.totaux.pct_inst)], [fmt(h && h.totaux && h.totaux.ventes), 'ventes' + (h && h.totaux && h.totaux.pct_ventes != null ? ' · ' + h.totaux.pct_ventes + ' %' : ''), cp(h && h.totaux && h.totaux.pct_ventes)]);
+  f('sylvain', [fmt(sy && sy.totaux && sy.totaux.rdv), 'RDV sur 3 jours'], [fmt(sy && sy.totaux && sy.totaux.meta), 'dont META']);
+  const I = (ARCH && ARCH.index) || {};
+  f('ruzard', [String((I.semaines || []).length), 'semaines archivées'], [String((I.mois || []).length), 'mois archivés']);
+}
+function render() {
+  const a = (DATA.agents || {}).jones;
+  const e = etatJones(a);
+  const z = $('zone-jones');
+  z.classList.remove('on', 'ok', 'bloque', 'silence', 'repos'); z.classList.add(e);
+  $('road-jones').classList.toggle('on', e === 'on');
+  const L = LIB(a, e, 'il fouille le portail.', '8h15');
+  $('tag-jones').textContent = '8h15 · ' + L[0];
+  $('j-pill').textContent = L[0]; $('j-pill').style.cssText = L[1];
+  $('j-sub').textContent = L[2];
+  const es = renderSylvain(), eh = renderHugues(), er = renderRuzard(), ey = renderSylvie(), ei = renderIgor();
+  const nOn = [e, es, eh, er, ey, ei].filter(x => x === 'on').length, nBl = [e, es, eh, er, ey, ei].filter(x => x === 'bloque').length;
+  $('hub').classList.toggle('on', nOn > 0);
+  $('active').textContent = nOn ? nOn + (nOn > 1 ? ' agents en mission' : ' agent en mission') : 'Aucun agent en mission';
+  $('livedot').style.background = nOn ? '#F5A524' : (nBl ? '#F97316' : '#34D399');
+  $('hubtxt').textContent = nOn ? nOn + ' en mission' : (nBl ? nBl + (nBl > 1 ? ' blocages' : ' blocage') : 'tout est calme');
+  bullesEtFiches({ jones: e, sylvain: es, hugues: eh, ruzard: er });
+  if (typeof majBoite === 'function') { majBoite(); livraisons(); }
+  $('majchip').textContent = DATA.maj ? 'Dernière mise à jour : ' + fin(DATA.maj) : 'Aucune mission enregistrée';
+
+  const r = a ? (a.rapport || a.dernier_rapport) : null;
+  $('j-alert').innerHTML = e === 'bloque'
+    ? `<div class="alert"><b>Ce qui bloque :</b> ${esc(a.blocage)}${a.dernier_rapport ? '<br><span style="opacity:.8">Ci-dessous : le dernier compte rendu réussi.</span>' : ''}</div>` : '';
+  if (!r) { $('j-stats').innerHTML = '<span class="mut">Aucun compte rendu pour l\'instant.</span>'; $('j-com').innerHTML = ''; $('j-eq').innerHTML = ''; $('j-extra').innerHTML = ''; }
+  else {
+    const rv = r.rdv_veille || {};
+    $('j-stats').innerHTML = [
+      [r.ventes_ajoutees, 'ventes ajoutées à la carte'],
+      [rv.jour ? rv.total : '—', rv.jour ? `RDV le ${frDate(rv.jour)}` : 'RDV de la veille (dès le 21/11)'],
+      [rv.jour ? rv.ventes : '—', rv.jour ? `ventes sur ${rv.realises} RDV réalisés` : 'ventes de la veille'],
+      [r.total_ventes_carte, 'ventes sur la carte au total']
+    ].map(([v, l]) => `<div class="stat"><b>${esc(v)}</b><span>${esc(l)}</span></div>`).join('');
+    const li = o => Object.entries(o || {}).sort((x, y) => y[1] - x[1]).map(([k, v]) => `<li><span>${esc(k)}</span><b>${esc(v)}</b></li>`).join('') || '<li><span class="mut">Aucune nouvelle vente</span></li>';
+    $('j-com').innerHTML = li(r.par_commercial); $('j-eq').innerHTML = li(r.par_equipe);
+    let x = '';
+    if ((r.sans_point || []).length) x += `<h3 style="font-size:16px;margin-top:8px">Sans point sur la carte</h3><ul class="list">${r.sans_point.map(s => `<li><span>${esc(s)}</span></li>`).join('')}</ul>`;
+    if ((r.nouveaux_commerciaux || []).length) x += `<h3 style="font-size:16px;margin-top:8px">Nouveaux commerciaux</h3><ul class="list">${r.nouveaux_commerciaux.map(([s, t]) => `<li><span>${esc(s)}</span><span class="mut">${esc(t)}</span></li>`).join('')}</ul>`;
+    $('j-extra').innerHTML = x;
+  }
+  let H = '';
+  for (const [ag, lab] of [['hugues', 'Hugues'], ['jones', 'Jones'], ['sylvain', 'Sylvain'], ['sylvie', 'Sylvie'], ['igor', 'Igor'], ['ruzard', 'Ruzard']]) {
+    const h = (DATA.historique || {})[ag] || {};
+    H += `<span>${lab}</span>`;
+    for (let i = 13; i >= 0; i--) {
+      const d = paris(new Date(Date.now() - i * 864e5)).jour, s = h[d];
+      H += `<i class="${s || ''}" title="${lab} · ${frDate(d)} · ${s === 'ok' ? 'OK' : s === 'bloque' ? 'bloqué' : 'pas de mission'}"></i>`;
+    }
+  }
+  H += '<span></span>' + Array.from({ length: 14 }, (_, k) => k % 2 ? '<span></span>' : `<span style="text-align:center">${frDate(paris(new Date(Date.now() - (13 - k) * 864e5)).jour)}</span>`).join('');
+  $('hist').innerHTML = H;
+}
+
+// ---------- Open space : livraisons, boîte des résultats, pop-up ----------
+const RES = [
+  ['jones', 'La carte des ventes', 'Jones', '#F59E0B'], ['hugues', 'Les chiffres du Power BI', 'Hugues', '#A78BFA'],
+  ['sylvain', 'Les RDV à venir', 'Sylvain', '#22D3EE'], ['sylvie', 'Les mails du soir', 'Sylvie', '#F472B6'],
+  ['igor', 'Les installations en direct', 'Igor', '#60A5FA'], ['ruzard', 'Les archives', 'Ruzard', '#A3E635'],
+  ['activite', 'L’activité des agents (14 jours)', 'Le QG', '#FDE047'] ];
+RES.splice(0, RES.length, ...RES.filter(([a]) => ['sylvie', 'igor', 'activite'].includes(a)));
+const LS = { get: k => { try { return localStorage.getItem(k); } catch (_) { return null; } }, set: (k, v) => { try { localStorage.setItem(k, v); } catch (_) {} } };
+const finAgent = a => { const g = (DATA.agents || {})[a]; return g && (g.rapport || g.dernier_rapport) ? (g.fin || g.dernier_ok || g.jour || '') : ''; };
+const nonLu = a => a !== 'activite' && !!finAgent(a) && LS.get('qg_vu_' + a) !== finAgent(a);
+function majBoite() {
+  const avec = RES.filter(([a]) => a !== 'activite' && finAgent(a));
+  $('boite-dossiers').innerHTML = avec.map(([a, , , c], i) => `<rect x="${-84 + i * 28}" y="${-40 - (i % 2) * 8}" width="44" height="40" rx="3" fill="${c}" stroke="#0A0A0A" stroke-width="2.5" transform="rotate(${(i % 2 ? 6 : -6)} ${-62 + i * 28} -20)"/>`).join('');
+  const n = RES.filter(([a]) => nonLu(a)).length;
+  $('boite-badge').classList.toggle('cache', !n); $('boite-nb').textContent = n;
+}
+let LIVRES = 0;
+function livraisons() {
+  RES.forEach(([a]) => {
+    const g = (DATA.agents || {})[a];
+    if (!g || g.etat !== 'ok' || !g.fin) return;
+    if (LS.get('qg_livre_' + a) === g.fin) return;
+    LS.set('qg_livre_' + a, g.fin);
+    const m = document.querySelector('#zone-' + a + ' .marcheur'); if (!m) return;
+    setTimeout(() => {
+      m.classList.remove('livre'); void m.getBoundingClientRect(); m.classList.add('livre');
+      setTimeout(() => { const c = $('boite-chute'); c.classList.remove('tombe'); void c.getBoundingClientRect(); c.classList.add('tombe'); majBoite(); const b = $('boite-badge'); b.classList.remove('pop'); void b.getBoundingClientRect(); b.classList.add('pop'); }, 2900);
+      setTimeout(() => m.classList.remove('livre'), 6100);
+    }, (LIVRES++ % 6) * 1600);
+  });
+}
+function ouvrirMenu() {
+  $('menu-liste').innerHTML = RES.map(([a, lib, qui, c]) => {
+    const f = finAgent(a);
+    return `<button type="button" class="choix" data-res="${a}" style="--acc:${c}"><span style="display:flex;flex-direction:column;gap:2px"><b>${esc(lib)}</b><span class="mut" style="font-size:13px">${esc(qui)}${f ? ' · ' + esc(fin(f)) : a === 'activite' ? '' : ' · pas encore de résultat'}</span></span>${nonLu(a) ? '<span class="neuf">NOUVEAU</span>' : ''}</button>`;
+  }).join('');
+  $('menu-liste').querySelectorAll('.choix').forEach(b => b.addEventListener('click', () => ouvrirResultat(b.dataset.res)));
+  $('pop').hidden = true; $('menu').hidden = false; $('menu-x').focus();
+}
+function fermerMenu() { $('menu').hidden = true; }
+let POP = null;
+function rangerPop() { if (POP) { $('coffre').appendChild(POP); POP = null; } }
+function ouvrirResultat(a) {
+  const el = $(a === 'activite' ? 'panel-activite' : 'panel-' + a); if (!el) return;
+  rangerPop(); fermerMenu(); fermerMission();
+  const R = RES.find(x => x[0] === a);
+  $('pop-t').textContent = R ? R[1] : 'Résultats'; $('pop-t').style.color = R ? R[3] : '';
+  $('pop-boite').style.boxShadow = '10px 10px 0 ' + (R ? R[3] : '#FDE047');
+  $('pop-corps').appendChild(el); POP = el;
+  $('pop').hidden = false; $('pop').scrollTop = 0; $('pop-x').focus();
+  if (finAgent(a)) LS.set('qg_vu_' + a, finAgent(a));
+  majBoite();
+}
+function fermerPop() { $('pop').hidden = true; rangerPop(); }
+$('boite').addEventListener('click', ouvrirMenu);
+$('boite').addEventListener('keydown', ev => { if (ev.key === 'Enter' || ev.key === ' ') { ev.preventDefault(); ouvrirMenu(); } });
+$('menu-x').addEventListener('click', fermerMenu);
+$('pop-x').addEventListener('click', fermerPop);
+$('pop-retour').addEventListener('click', () => { fermerPop(); ouvrirMenu(); });
+['menu', 'pop'].forEach(id => $(id).addEventListener('click', ev => { if (ev.target === $(id)) id === 'menu' ? fermerMenu() : fermerPop(); }));
+document.addEventListener('keydown', ev => { if (ev.key !== 'Escape') return; if (!$('pop').hidden) fermerPop(); else if (!$('menu').hidden) fermerMenu(); });
+
+// ---------- Lancer un agent depuis le QG ----------
+const TACHES = {
+  jones:   { id: '', nom: 'Jones', c: '#F59E0B', fg: '#1A1408', go: 'Lancer la quête', txt: 'Il relève les ventes et les RDV sur le portail et met à jour la carte des ventes (10 à 30 minutes). Garde Chrome ouvert et connecté au portail, et GitHub Desktop disponible sur le Mac.' },
+  hugues:  { id: '', nom: 'Hugues', c: '#A78BFA', fg: '#1A1033', go: 'Lancer les comptes', txt: 'Il relit le Power BI et met à jour la compilation du mois (environ 10 minutes). Garde Chrome ouvert et connecté à Power BI.' },
+  sylvain: { id: '', nom: 'Sylvain', c: '#22D3EE', fg: '#062A31', go: 'Lancer le planning', txt: 'Il relève les RDV des 3 prochains jours ouvrés de l’équipe (environ 5 minutes). Garde Chrome ouvert et connecté au portail.' },
+  sylvie:  { id: '{{TRIG_SYLVIE_MAILS}}', nom: 'Sylvie', c: '#F472B6', fg: '#1A0610', go: 'Lancer le tri', txt: 'Elle trie les mails reçus depuis son dernier tri, sans rien ouvrir (environ 5 minutes). Garde Chrome ouvert et connecté à Outlook.' },
+  ruzard:  { id: '', nom: 'Ruzard', c: '#A3E635', fg: '#13200A', go: 'Archiver maintenant', txt: 'Il range la semaine en cours dans les archives avec les derniers comptes rendus (2 à 3 minutes). Il tourne dans le cloud : le Mac peut être éteint.' },
+  sylvie_slack: { id: '{{TRIG_SYLVIE_SLACK}}', nom: 'Sylvie', zone: 'sylvie', c: '#F472B6', fg: '#1A0610', go: 'Envoyer le point', txt: 'Elle reprend le dernier point d’Igor (il doit dater d’aujourd’hui) et envoie à chaque commercial, dans sa conversation Slack avec toi, ses installations validées, proches, à suivre, en alerte et à checker (2 à 4 minutes). Garde Chrome ouvert et connecté à Slack.' },
+  igor:    { id: '{{TRIG_IGOR}}', nom: 'Igor', c: '#60A5FA', fg: '#06101F', go: 'Lancer la filature', txt: 'Il file toutes les installations de l’équipe sur le portail (environ 5 minutes). Garde Chrome ouvert et connecté au portail Flatpay.' },
+};
+let MCP = null, CIBLE = null;
+const msgLance = (a, t, c) => { const el = $('lm-' + a); if (el) { el.textContent = t; el.style.color = c || ''; } };
+function ouvrirMission(a) {
+  const T = TACHES[a]; if (!T) return; CIBLE = a;
+  $('i-modal-t').textContent = 'Mission pour ' + T.nom + ' ?'; $('i-modal-t').style.color = T.c;
+  $('i-modal-x').textContent = T.txt + (a === 'sylvie_slack' ? ($('i-essai').checked ? ' MODE ESSAI : tout arrivera dans ton espace perso Slack.' : ' ⚠️ MODE RÉEL : les messages partent aux commerciaux.') : '');
+  $('i-boite').style.boxShadow = '10px 10px 0 ' + T.c;
+  $('i-go').textContent = T.go; $('i-go').style.cssText = `border-color:${T.c};background:${T.c};color:${T.fg}`;
+  $('i-modal').hidden = false; $('i-go').focus();
+}
+function fermerMission() { $('i-modal').hidden = true; }
+async function lancer(a) {
+  const T = TACHES[a]; fermerMission();
+  const b = document.querySelector(`.lance[data-agent="${a}"]`); if (b) b.disabled = true;
+  msgLance(a, 'Envoi de l’ordre de mission…');
+  try {
+    if (!MCP) MCP = await claude.use('mcp');
+    if (!MCP) throw { code: 'indisponible' };
+    if (typeof MCP.callTool === 'function') await MCP.callTool('Claude Code Remote', 'fire_trigger', { trigger_id: T.id });
+    else await (await MCP.server('Claude Code Remote')).fire_trigger({ trigger_id: T.id });
+    msgLance(a, `Ordre reçu : ${T.nom} part en mission. Sa case s’animera dès qu’il démarre (moins d’une minute).`, '#6EE7B7');
+    const z = $('zone-' + (T.zone || a)), r = $('road-' + (T.zone || a));
+    if (z) z.classList.add('demo'); if (r) r.classList.add('on');
+    setTimeout(() => { if (z) z.classList.remove('demo'); if (r) r.classList.remove('on'); }, 60000);
+  } catch (err) {
+    const code = (err && (err.code || err.name)) || '';
+    msgLance(a, (code === 'indisponible' || code === 'server_not_connected' ? 'Lancement direct impossible ici' : 'Le lancement a échoué (' + (code || (err && err.message) || 'erreur') + ')') + ` : appli Claude › Tâches planifiées › « ${T.nom} » › Exécuter maintenant.`, '#FDBA74');
+  } finally { setTimeout(() => { if (b) b.disabled = false; }, 5000); }
+}
+document.querySelectorAll('.lance').forEach(b => b.addEventListener('click', () => ouvrirMission(b.dataset.agent)));
+$('i-go').addEventListener('click', () => CIBLE && lancer(CIBLE));
+$('i-voir').addEventListener('click', () => { fermerMission(); if (CIBLE) ouvrirResultat(CIBLE === 'sylvie_slack' ? 'igor' : CIBLE); });
+$('i-annuler').addEventListener('click', fermerMission);
+$('i-modal').addEventListener('click', ev => { if (ev.target === $('i-modal')) fermerMission(); });
+document.addEventListener('keydown', ev => { if (ev.key === 'Escape' && !$('i-modal').hidden) fermerMission(); });
+const demo = z => { if (TACHES[z.dataset.agent]) { ouvrirMission(z.dataset.agent); return; } if (['jones', 'sylvain', 'hugues', 'ruzard', 'sylvie', 'igor'].includes(z.dataset.agent)) { $('panel-' + z.dataset.agent).scrollIntoView({ behavior: 'smooth' }); return; } z.classList.add('demo'); $('road-' + z.dataset.agent).classList.add('on'); setTimeout(() => { z.classList.remove('demo'); $('road-' + z.dataset.agent).classList.remove('on'); }, 3000); };
+document.querySelectorAll('.zone').forEach(z => { z.addEventListener('click', () => demo(z)); z.addEventListener('keydown', ev => { if (ev.key === 'Enter' || ev.key === ' ') { ev.preventDefault(); demo(z); } }); });
+render();
+setInterval(render, 60000);
+
+(async () => {
+  const db = window.claude && window.claude.use ? await window.claude.use('db') : null;
+  if (!db) { $('majchip').textContent = 'Ouvre le QG connecté à ton compte Claude pour voir les missions'; return; }
+  let timer = setTimeout(() => { $('majchip').textContent = 'Données injoignables pour le moment, réessaie plus tard'; }, 10000);
+  DB = db;
+  db.doc('archives/index').onSnapshot(sn => { ARCH.index = sn.exists ? sn.data() : { mois: [], semaines: [] }; renderIndex(); }, () => { $('r-vue').innerHTML = '<span class="mut">Archives injoignables pour le moment.</span>'; });
+  const ess = $('i-essai');
+  db.doc('qg/reglages').onSnapshot(sn => { const d = sn.exists ? sn.data() : {}; ess.checked = d.slack_essai !== false; }, () => {});
+  ess.addEventListener('change', async () => {
+    const v = ess.checked; ess.disabled = true;
+    try { await db.doc('qg/reglages').set({ slack_essai: v, note: 'slack_essai true = les messages de Sylvie x Igor partent dans l’espace perso du manager uniquement' }); msgLance('sylvie_slack', v ? 'Mode essai activé.' : 'Mode réel : les prochains messages partiront aux commerciaux.', v ? '' : '#FDBA74'); }
+    catch (e) { ess.checked = !v; msgLance('sylvie_slack', 'Réglage non enregistré (' + ((e && (e.code || e.message)) || 'erreur') + ').', '#FDBA74'); }
+    finally { ess.disabled = false; }
+  });
+  db.doc('qg/statut').onSnapshot(snap => {
+    if (!snap.metadata.fromCache) clearTimeout(timer);
+    DATA = snap.exists ? snap.data() : { agents: {}, historique: {} };
+    render();
+  }, () => { clearTimeout(timer); $('majchip').textContent = 'Données injoignables pour le moment, réessaie plus tard'; });
+})();
+</script>
+</body>
+</html>

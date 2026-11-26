@@ -23,6 +23,10 @@ ROBOT = re.compile(r'(no-?reply|do_not_reply|donotreply|notification|mailer-daem
 RH_EXP = ('personio', 'salma.ettalbi', 'caroline.dechilly', 'lily.sully', 'zakaria.benfadel', 'nina.bazoge', 'rh@flatpay', 'hr@flatpay', 'people@flatpay', 'payroll', 'paie@')
 RH_MOTS = re.compile(r"(cong[ée]s|\brtt\b|\bpaie\b|bulletin de salaire|fiche de paie|mutuelle|arr[êe]t maladie|p[ée]riode d.essai|note de frais|frais km|remboursement frais|ressources humaines|\brh\b|entretien annuel|onboarding|offboarding|d[ée]mission|rupture conventionnelle|avenant)", re.I)
 RET_MOTS = re.compile(r'(r[ée]tention|retention|r[ée]silia|churn|r[ée]silier)', re.I)
+if '--config' in sys.argv:   # réglages d'un autre manager : email et expéditeurs RH en plus
+    _i = sys.argv.index('--config'); _c = json.load(open(sys.argv[_i + 1], encoding='utf-8')); del sys.argv[_i:_i + 2]
+    MOI = _c['email'].lower()
+    RH_EXP = RH_EXP + tuple(x.lower() for x in _c.get('rh_expediteurs', []))
 DOSSIERS_EXCLUS = {'deleted items', 'éléments supprimés', 'junk email', 'courrier indésirable', 'drafts', 'brouillons'}
 
 def norm(s):

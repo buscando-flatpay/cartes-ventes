@@ -1,0 +1,13 @@
+{
+ "nom": "Prénom Nom du manager (exactement comme dans Slack)",
+ "email": "prenom.nom@flatpay.fr",
+ "slack_equipe": "T06TFEQQ0UV",
+ "slack_moi": "D0XXXXXXXXX",
+ "portail_sales": "11111,22222,33333",
+ "exclus": [],
+ "slack_dm": {
+  "Prénom Nom commercial 1": "D0XXXXXXXXX",
+  "Prénom Nom commercial 2": "D0XXXXXXXXX"
+ },
+ "rh_expediteurs": []
+}

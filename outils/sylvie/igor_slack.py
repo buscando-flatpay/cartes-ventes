@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Sylvie × Igor — rédige le point « installations » de chaque commercial pour Slack.
 
-Usage : python3 igor_slack.py rapport_igor.json sortie_dossier [--test] [--seulement "Prénom Nom"]
+Usage : python3 igor_slack.py rapport_igor.json sortie_dossier [--test] [--seulement "Prénom Nom"] [--config manager.json]
 
 - rapport_igor.json : le rapport d'Igor (agents.igor.rapport du QG).
 - Écrit dans sortie_dossier : messages.json (liste {sales, dm, prenom, texte, nb}), apercu.txt et un fichier
@@ -107,8 +107,20 @@ def message(sales, insts, sorties, rap, J):
     return '\n'.join(out), sum(len(v) for v in par.values()) + len(sorties)
 
 
+def charger_config(chemin):
+    """Réglages d'un autre manager (voir config/exemple_manager.json). Sans --config : réglages de Quentin."""
+    global EQUIPE, QUENTIN, DM, EXCLUS
+    c = json.load(open(chemin, encoding='utf-8'))
+    EQUIPE = c.get('slack_equipe', EQUIPE)
+    QUENTIN = (c['nom'], c['slack_moi'])
+    DM = dict(c['slack_dm'])
+    EXCLUS = set(c.get('exclus', []))
+
+
 def main():
     args = sys.argv[1:]
+    if '--config' in args:
+        i = args.index('--config'); charger_config(args[i + 1]); del args[i:i + 2]
     test = '--test' in args
     seul = None
     if '--seulement' in args: seul = args[args.index('--seulement') + 1]
